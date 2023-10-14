@@ -1,0 +1,15 @@
+.stat-name {
+  min-width: 150px;
+}
+
+.pref-value {
+  color: #b4b4b4;
+}
+
+.icon-disabled {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.reset-button {
+  min-width: 50px;
+}

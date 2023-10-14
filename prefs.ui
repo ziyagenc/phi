@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0" />
+  <object class="AdwPreferencesPage" id="preferences">
+    <property name="name">preferences</property>
+    <property name="title" translatable="true">Preferences</property>
+    <property name="icon-name">preferences-system-symbolic</property>
+    <child>
+      <object class="AdwPreferencesGroup">
+        <property name="title" translatable="true">Pi-hole Settings</property>
+        <property name="description" translatable="true">Enter the information required to access your Pi-hole.</property>
+        <property name="header-suffix">
+          <object class="GtkMenuButton">
+            <property name="halign">2</property>
+            <property name="valign">3</property>
+            <property name="icon-name">dialog-information-symbolic</property>
+            <property name="popover">
+              <object class="GtkPopover">
+                <child>
+                  <object class="GtkBox" id="steps">
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="orientation">1</property>
+                    <property name="spacing">12</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">1</property>
+                        <property name="label" translatable="true">You can get the authentication token as follows:</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">1</property>
+                        <property name="label" translatable="true">1. Login to Pi-hole web interface.</property>
+                        <property name="use-markup">true</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">1</property>
+                        <property name="label" translatable="true">2. On the left menu, click &lt;b&gt;Settings&lt;/b&gt;.</property>
+                        <property name="use-markup">true</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">1</property>
+                        <property name="label" translatable="true">3. Go to &lt;b&gt;API&lt;/b&gt; tab, then click &lt;b&gt;Show API Token&lt;/b&gt; at the bottom left.</property>
+                        <property name="use-markup">true</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">1</property>
+                        <property name="label" translatable="true">4. On the confirmation dialog, select &lt;b&gt;Yes, show API token&lt;/b&gt;.</property>
+                        <property name="use-markup">true</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">1</property>
+                        <property name="label" translatable="true">5. The token will appear below the QR code.</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </property>
+            <style>
+              <class name="flat" />
+            </style>
+          </object>
+        </property>
+        <child>
+          <object class="AdwEntryRow" id="url_entry">
+            <property name="title" translatable="true">Pi-hole URL</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwEntryRow" id="token_entry">
+            <property name="title" translatable="true">API Token</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup">
+        <property name="title" translatable="true">Behaviour</property>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="true">Update interval (seconds)</property>
+            <property name="subtitle" translatable="true">For better performance, update less frequently.</property>
+            <property name="activatable-widget">interval_spin</property>
+            <child>
+              <object class="GtkSpinButton" id="interval_spin">
+                <property name="valign">3</property>
+                <property name="adjustment">
+                  <object class="GtkAdjustment" id="spin_adjustment">
+                    <property name="lower">1</property>
+                    <property name="upper">900</property>
+                    <property name="step-increment">1</property>
+                    <property name="page-increment">1</property>
+                  </object>
+                </property>
+                <property name="digits">0</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="true">Hide indicator if disconnected</property>
+            <property name="subtitle" translatable="true">Can be combined with network selection below.</property>
+            <property name="activatable-widget">hideui_switch</property>
+            <child>
+              <object class="GtkSwitch" id="hideui_switch">
+                <property name="active">true</property>
+                <property name="valign">3</property>
+                <property name="margin-start">10</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwExpanderRow" id="restrict_expander">
+            <property name="title" translatable="true">Fetch only in selected networks</property>
+            <property name="subtitle" translatable="true">Might be useful if this computer connects to different networks.</property>
+            <property name="show-enable-switch">true</property>
+            <property name="enable-expansion">false</property>
+            <child>
+              <object class="AdwEntryRow" id="networks_entry">
+                <property name="title" translatable="true">Selected Networks</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup">
+        <property name="title" translatable="true">Reset</property>
+        <property name="description" translatable="true">Deletes all settings. This action cannot be undone.</property>
+        <child type="header-suffix">
+          <object class="GtkButton" id="reset_button">
+            <property name="name">Reset</property>
+            <property name="label" translatable="true">Reset</property>
+            <property name="valign">3</property>
+            <style>
+              <class name="destructive-action" />
+              <class name="reset-button" />
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

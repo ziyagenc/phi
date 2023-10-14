@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+    <schema id="org.gnome.shell.extensions.phi" path="/org/gnome/shell/extensions/phi/">
+        <key name="url" type="s">
+            <default>'http://pi.hole'</default>
+        </key>
+        <key name="token" type="s">
+            <default>''</default>
+        </key>
+        <key name="interval" type="u">
+            <default>10</default>
+        </key>
+        <key name="hideui" type="b">
+            <default>false</default>
+        </key>
+        <key name="restrict" type="b">
+            <default>false</default>
+        </key>
+        <key name="networks" type="s">
+            <default>''</default>
+        </key>
+    </schema>
+</schemalist>
