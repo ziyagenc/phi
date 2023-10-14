@@ -141,6 +141,8 @@ var Pihole = GObject.registerClass(
     }
 
     async _updateUI() {
+      if (!this._menuButton) return;
+
       try {
         const stats = await this._piholeClient.fetchSummary();
         if (Object.keys(stats).length === 0) {
