@@ -6,7 +6,6 @@ import St from "gi://St";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
-import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 
 import { PiholeClient } from "./client.js";
 import { ItemContext, PrefsItem, StatsItem } from "./items.js";
@@ -32,41 +31,19 @@ const ClientStatus = {
   UNKNOWN_NETWORK: _("Monitoring is not enabled\nfor this network."),
 };
 
-const PiholeMenuButton = GObject.registerClass(
-  {
-    GTypeName: "PiholeMenuButton",
-  },
-  class PiholeMenuButton extends PanelMenu.Button {
-    _init() {
-      super._init(0.0, _("PiholeMenuButton"));
-
-      // TODO: Find a more elegant solution than hardcoding uuid here.
-      const thisExtension = Extension.lookupByUUID("phi@ziyagenc.github.com");
-
-      this.icon = new St.Icon({ style_class: "system-status-icon" });
-      this.icon.gicon = Gio.icon_new_for_string(
-        thisExtension.path + "/icons/phi-symbolic.svg"
-      );
-
-      this.add_child(this.icon);
-    }
-  }
-);
-
 export const Pihole = GObject.registerClass(
   {
     GTypeName: "Pihole",
   },
   class Pihole extends GObject.Object {
-    constructor(uuid, command) {
+    constructor(me, command) {
       super();
 
-      this._extension = Extension.lookupByUUID(uuid);
-      this._settings = this._extension.getSettings();
+      this._me = me;
+      this._settings = this._me.getSettings();
       this._configure();
 
-      this._menuButton = new PiholeMenuButton(this._extension.path);
-      this._makeMenu(uuid);
+      this._makeMenu();
 
       this._piholeClient = new PiholeClient(this._url, this._token);
       this._setHandlers();
@@ -87,7 +64,21 @@ export const Pihole = GObject.registerClass(
       this._interval = this._settings.get_uint("interval");
     }
 
-    _makeMenu(uuid) {
+    _makeMenu() {
+      this._menuButton = new PanelMenu.Button(
+        0.0,
+        this._me.metadata.name,
+        false
+      );
+
+      this._menuButton.icon = new St.Icon({
+        style_class: "system-status-icon",
+      });
+      this._menuButton.icon.gicon = Gio.icon_new_for_string(
+        this._me.path + "/icons/phi-symbolic.svg"
+      );
+      this._menuButton.add_child(this._menuButton.icon);
+
       // Error message item -- shown when an error occurs.
       // It has ItemContext.ERROR set in its "context" field.
       this._errorMessageItem = new PopupMenu.PopupMenuItem(_("Initializing"));
@@ -128,7 +119,7 @@ export const Pihole = GObject.registerClass(
       this._settingsItem = new PrefsItem();
       this._menuButton.menu.addMenuItem(this._settingsItem);
 
-      Main.panel.addToStatusArea(uuid, this._menuButton);
+      Main.panel.addToStatusArea(this._me.uuid, this._menuButton);
     }
 
     _setHandlers() {
@@ -138,7 +129,7 @@ export const Pihole = GObject.registerClass(
       });
 
       this._settingsItem.connect("activate", () => {
-        this._extension.openPreferences();
+        this._me.openPreferences();
       });
 
       this._settingsHandlerId = this._settings.connect("changed", () => {
@@ -176,7 +167,8 @@ export const Pihole = GObject.registerClass(
         }
 
         this._showMainMenu(stats);
-      } catch {
+      } catch (err) {
+        console.error(err);
         // Make sure that the menu is there.
         if (this._menuButton) this._showErrorMenu(ClientStatus.FETCH_FAILED);
       }

@@ -13,8 +13,8 @@ export const PiholeIndicator = GObject.registerClass(
     constructor(uuid) {
       super();
 
-      const thisExtension = Extension.lookupByUUID(uuid);
-      this._settings = thisExtension.getSettings();
+      this._me = Extension.lookupByUUID(uuid);
+      this._settings = this._me.getSettings();
       this._network_monitor = Gio.NetworkMonitor.get_default();
       this._pihole = null;
       this._uuid = uuid;
@@ -53,19 +53,19 @@ export const PiholeIndicator = GObject.registerClass(
           const currentNetworkId = await DBus.getNetworkIdAsync();
 
           this._pihole = this._networks.split(";").includes(currentNetworkId)
-            ? new Pihole(this._uuid, "start")
+            ? new Pihole(this._me, "start")
             : null;
         } else if (this._restrict) {
           const currentNetworkId = await DBus.getNetworkIdAsync();
 
           this._pihole = this._networks.split(";").includes(currentNetworkId)
-            ? new Pihole(this._uuid, "start")
-            : new Pihole(this._uuid, "unknown_network");
+            ? new Pihole(this._me, "start")
+            : new Pihole(this._me, "unknown_network");
         } else {
-          this._pihole = new Pihole(this._uuid, "start");
+          this._pihole = new Pihole(this._me, "start");
         }
       } else {
-        if (!this._hideUi) this._pihole = new Pihole(this._uuid, "no_network");
+        if (!this._hideUi) this._pihole = new Pihole(this._me, "no_network");
       }
     }
 
