@@ -1,23 +1,13 @@
 const { Gio } = imports.gi;
 
-const NetworkProxyXml = `
-<node>
-  <interface name="org.freedesktop.NetworkManager">
-    <property name="PrimaryConnection" type="o" access="read"/>
-  </interface>
-</node>`;
-
-const NetworkIdProxyXml = `
-<node>
-  <interface name="org.freedesktop.NetworkManager.Connection.Active">
-    <property name="Id" type="s" access="read"/>
-  </interface>
-</node>`;
-
-const NetworkProxy = Gio.DBusProxy.makeProxyWrapper(NetworkProxyXml);
-const NetworkIdProxy = Gio.DBusProxy.makeProxyWrapper(NetworkIdProxyXml);
-
 async function _getNetworkProxyAsync() {
+  const NetworkProxyXml = `
+    <node>
+      <interface name="org.freedesktop.NetworkManager">
+        <property name="PrimaryConnection" type="o" access="read"/>
+      </interface>
+    </node>`;
+  const NetworkProxy = Gio.DBusProxy.makeProxyWrapper(NetworkProxyXml);
   const networkProxyAsync = await new Promise((resolve, reject) => {
     NetworkProxy(
       Gio.DBus.system,
@@ -36,6 +26,13 @@ async function _getNetworkProxyAsync() {
 }
 
 async function _getNetworkIdProxyAsync(objectPath) {
+  const NetworkIdProxyXml = `
+    <node>
+      <interface name="org.freedesktop.NetworkManager.Connection.Active">
+        <property name="Id" type="s" access="read"/>
+      </interface>
+    </node>`;
+  const NetworkIdProxy = Gio.DBusProxy.makeProxyWrapper(NetworkIdProxyXml);
   const networkIdProxyAsync = await new Promise((resolve, reject) => {
     NetworkIdProxy(
       Gio.DBus.system,
