@@ -1,4 +1,4 @@
-const { Gio } = imports.gi;
+import Gio from 'gi://Gio';
 
 const NetworkProxyXml = `
 <node>
@@ -53,7 +53,7 @@ async function _getNetworkIdProxyAsync(objectPath) {
   return networkIdProxyAsync;
 }
 
-async function getNetworkIdAsync() {
+export async function getNetworkIdAsync() {
   const networkProxyAsync = await _getNetworkProxyAsync();
   const primaryConnection = networkProxyAsync.PrimaryConnection;
   const networkIdProxyAsync = await _getNetworkIdProxyAsync(primaryConnection);

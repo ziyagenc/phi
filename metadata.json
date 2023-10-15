@@ -2,7 +2,7 @@
   "name": "Phi: Pi-hole Indicator",
   "description": "Pi-hole indicator for GNOME Shell.",
   "uuid": "phi@ziyagenc.github.com",
-  "shell-version": ["44"],
+  "shell-version": ["45"],
   "url": "https://github.com/ziyagenc/phi",
   "gettext-domain": "phi@ziyagenc.github.com",
   "settings-schema": "org.gnome.shell.extensions.phi"

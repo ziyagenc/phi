@@ -1,16 +1,15 @@
-const { Gio, GLib, GObject, St } = imports.gi;
+import Gio from "gi://Gio";
+import GLib from "gi://GLib";
+import GObject from "gi://GObject";
+import St from "gi://St";
 
-const Main = imports.ui.main;
-const PanelMenu = imports.ui.panelMenu;
-const PopupMenu = imports.ui.popupMenu;
+import * as Main from "resource:///org/gnome/shell/ui/main.js";
+import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
+import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
+import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-ExtensionUtils.initTranslations(Me.metadata["gettext-domain"]);
-const _ = ExtensionUtils.gettext;
-
-const PiholeClient = Me.imports.client.PiholeClient;
-const { ItemContext, PrefsItem, StatsItem } = Me.imports.items;
+import { PiholeClient } from "./client.js";
+import { ItemContext, PrefsItem, StatsItem } from "./items.js";
 
 const PiholeMenuTypes = {
   MAINMENU: 0,
@@ -34,39 +33,50 @@ const ClientStatus = {
 };
 
 const PiholeMenuButton = GObject.registerClass(
+  {
+    GTypeName: "PiholeMenuButton",
+  },
   class PiholeMenuButton extends PanelMenu.Button {
     _init() {
-      super._init(0.0, _("Pihole Menu Button"));
+      super._init(0.0, _("PiholeMenuButton"));
+
+      // TODO: Find a more elegant solution than hardcoding uuid here.
+      const thisExtension = Extension.lookupByUUID("phi@ziyagenc.github.com");
 
       this.icon = new St.Icon({ style_class: "system-status-icon" });
       this.icon.gicon = Gio.icon_new_for_string(
-        Me.path + "/icons/phi-symbolic.svg"
+        thisExtension.path + "/icons/phi-symbolic.svg"
       );
+
       this.add_child(this.icon);
     }
   }
 );
 
-var Pihole = GObject.registerClass(
+export const Pihole = GObject.registerClass(
+  {
+    GTypeName: "Pihole",
+  },
   class Pihole extends GObject.Object {
-    constructor(initParam) {
+    constructor(uuid, command) {
       super();
 
-      this._settings = ExtensionUtils.getSettings();
+      this._extension = Extension.lookupByUUID(uuid);
+      this._settings = this._extension.getSettings();
       this._configure();
 
-      this._menuButton = new PiholeMenuButton();
-      this._makeMenu();
+      this._menuButton = new PiholeMenuButton(this._extension.path);
+      this._makeMenu(uuid);
 
       this._piholeClient = new PiholeClient(this._url, this._token);
       this._setHandlers();
 
-      if (initParam === "start") {
+      if (command === "start") {
         this._startUpdating();
         this._isRunning = true;
-      } else if (initParam === "no_network") {
+      } else if (command === "no_network") {
         this._showErrorMenu(ClientStatus.NO_NETWORK);
-      } else if (initParam === "unknown_network") {
+      } else if (command === "unknown_network") {
         this._showErrorMenu(ClientStatus.UNKNOWN_NETWORK);
       }
     }
@@ -77,7 +87,7 @@ var Pihole = GObject.registerClass(
       this._interval = this._settings.get_uint("interval");
     }
 
-    _makeMenu() {
+    _makeMenu(uuid) {
       // Error message item -- shown when an error occurs.
       // It has ItemContext.ERROR set in its "context" field.
       this._errorMessageItem = new PopupMenu.PopupMenuItem(_("Initializing"));
@@ -95,6 +105,7 @@ var Pihole = GObject.registerClass(
       this._toggleItem.context = ItemContext.SUCCESS;
       this._menuButton.menu.addMenuItem(this._toggleItem);
 
+      // This separator will be hidden when error menu is shown.
       this._mainSeparator = new PopupMenu.PopupSeparatorMenuItem();
       this._mainSeparator.context = ItemContext.SUCCESS;
       this._menuButton.menu.addMenuItem(this._mainSeparator);
@@ -117,7 +128,7 @@ var Pihole = GObject.registerClass(
       this._settingsItem = new PrefsItem();
       this._menuButton.menu.addMenuItem(this._settingsItem);
 
-      Main.panel.addToStatusArea(Me.metadata.uuid, this._menuButton);
+      Main.panel.addToStatusArea(uuid, this._menuButton);
     }
 
     _setHandlers() {
@@ -127,7 +138,7 @@ var Pihole = GObject.registerClass(
       });
 
       this._settingsItem.connect("activate", () => {
-        ExtensionUtils.openPrefs();
+        this._extension.openPreferences();
       });
 
       this._settingsHandlerId = this._settings.connect("changed", () => {
@@ -141,10 +152,12 @@ var Pihole = GObject.registerClass(
     }
 
     async _updateUI() {
-      if (!this._menuButton) return;
-
       try {
         const stats = await this._piholeClient.fetchSummary();
+
+        // Make sure that the menu is there.
+        if (!this._menuButton) return;
+
         if (Object.keys(stats).length === 0) {
           // Is API key set?
           if (this._token === "") {
@@ -164,7 +177,8 @@ var Pihole = GObject.registerClass(
 
         this._showMainMenu(stats);
       } catch {
-        this._showErrorMenu(ClientStatus.FETCH_FAILED);
+        // Make sure that the menu is there.
+        if (this._menuButton) this._showErrorMenu(ClientStatus.FETCH_FAILED);
       }
     }
 

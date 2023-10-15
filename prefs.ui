@@ -89,24 +89,18 @@
       <object class="AdwPreferencesGroup">
         <property name="title" translatable="true">Behaviour</property>
         <child>
-          <object class="AdwActionRow">
+          <object class="AdwSpinRow" id="interval_spin">
             <property name="title" translatable="true">Update interval (seconds)</property>
             <property name="subtitle" translatable="true">For better performance, update less frequently.</property>
-            <property name="activatable-widget">interval_spin</property>
-            <child>
-              <object class="GtkSpinButton" id="interval_spin">
-                <property name="valign">3</property>
-                <property name="adjustment">
-                  <object class="GtkAdjustment" id="spin_adjustment">
-                    <property name="lower">1</property>
-                    <property name="upper">900</property>
-                    <property name="step-increment">1</property>
-                    <property name="page-increment">1</property>
-                  </object>
-                </property>
-                <property name="digits">0</property>
+            <property name="adjustment">
+              <object class="GtkAdjustment">
+                <property name="lower">1</property>
+                <property name="upper">900</property>
+                <property name="value">10</property>
+                <property name="page-increment">1</property>
+                <property name="step-increment">1</property>
               </object>
-            </child>
+            </property>
           </object>
         </child>
         <child>
@@ -116,7 +110,7 @@
             <property name="activatable-widget">hideui_switch</property>
             <child>
               <object class="GtkSwitch" id="hideui_switch">
-                <property name="active">true</property>
+                <property name="active">false</property>
                 <property name="valign">3</property>
                 <property name="margin-start">10</property>
               </object>

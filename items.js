@@ -1,14 +1,19 @@
-const { Clutter, GObject, St } = imports.gi;
-const PopupMenu = imports.ui.popupMenu;
+import Clutter from "gi://Clutter";
+import GObject from "gi://GObject";
+import St from "gi://St";
 
-var ItemContext = {
+import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
+
+export const ItemContext = {
   SUCCESS: 0,
   ERROR: 1,
   PREF: 2,
 };
 
-var StatsItem = GObject.registerClass(
-  { GTypeName: "StatsItem" },
+export const StatsItem = GObject.registerClass(
+  {
+    GTypeName: "StatsItem",
+  },
   class StatsItem extends PopupMenu.PopupBaseMenuItem {
     _init(statsName) {
       super._init();
@@ -43,8 +48,10 @@ var StatsItem = GObject.registerClass(
   }
 );
 
-var PrefsItem = GObject.registerClass(
-  { GTypeName: "PrefsItem" },
+export const PrefsItem = GObject.registerClass(
+  {
+    GTypeName: "PrefsItem",
+  },
   class PrefsItem extends StatsItem {
     _init() {
       super._init(_("Settings"));

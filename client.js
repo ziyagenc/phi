@@ -1,9 +1,15 @@
-const { Gio, GLib, GObject, Soup } = imports.gi;
+import Gio from "gi://Gio";
+import GLib from "gi://GLib";
+import GObject from "gi://GObject";
+import Soup from "gi://Soup";
 
 Gio._promisify(Soup.Session.prototype, "send_async", "send_finish");
 Gio._promisify(Gio.OutputStream.prototype, "splice_async", "splice_finish");
 
-var PiholeClient = GObject.registerClass(
+export const PiholeClient = GObject.registerClass(
+  {
+    GTypeName: "PiholeClient",
+  },
   class PiholeClient extends GObject.Object {
     constructor(url, token) {
       super();

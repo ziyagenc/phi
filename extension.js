@@ -1,25 +1,17 @@
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
+import { PiholeIndicator } from "./indicator.js";
 
-const { PiholeIndicator } = Me.imports.indicator;
-
-class PiholeExtension {
+export default class PiholeExtension extends Extension {
   enable() {
-    log(`Enabling ${Me.metadata.name}.`);
+    log(`Enabling ${this.metadata.name}.`);
 
-    this._indicator = new PiholeIndicator();
+    this._indicator = new PiholeIndicator(this.metadata.uuid);
   }
 
   disable() {
-    log(`Disabling ${Me.metadata.name}.`);
+    log(`Disabling ${this.metadata.name}.`);
 
-    if (this._indicator) {
-      this._indicator.destroy();
-      this._indicator = null;
-    }
+    this._indicator?.destroy();
+    this._indicator = null;
   }
-}
-
-function init() {
-  return new PiholeExtension();
 }
