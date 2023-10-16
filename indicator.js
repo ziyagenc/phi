@@ -1,7 +1,6 @@
 import Gio from "gi://Gio";
 import GObject from "gi://GObject";
 
-import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 import * as DBus from "./dbus.js";
 import { Pihole } from "./pihole.js";
 
@@ -10,14 +9,13 @@ export const PiholeIndicator = GObject.registerClass(
     GTypeName: "PiholeIndicator",
   },
   class PiholeIndicator extends GObject.Object {
-    constructor(uuid) {
+    constructor(me, settings) {
       super();
 
-      this._me = Extension.lookupByUUID(uuid);
-      this._settings = this._me.getSettings();
+      this._me = me;
+      this._settings = settings;
       this._network_monitor = Gio.NetworkMonitor.get_default();
       this._pihole = null;
-      this._uuid = uuid;
 
       this._configure();
       this._setHandlers();
@@ -53,19 +51,20 @@ export const PiholeIndicator = GObject.registerClass(
           const currentNetworkId = await DBus.getNetworkIdAsync();
 
           this._pihole = this._networks.split(";").includes(currentNetworkId)
-            ? new Pihole(this._me, "start")
+            ? new Pihole(this._me, this._settings, "start")
             : null;
         } else if (this._restrict) {
           const currentNetworkId = await DBus.getNetworkIdAsync();
 
           this._pihole = this._networks.split(";").includes(currentNetworkId)
-            ? new Pihole(this._me, "start")
-            : new Pihole(this._me, "unknown_network");
+            ? new Pihole(this._me, this._settings, "start")
+            : new Pihole(this._me, this._settings, "unknown_network");
         } else {
-          this._pihole = new Pihole(this._me, "start");
+          this._pihole = new Pihole(this._me, this._settings, "start");
         }
       } else {
-        if (!this._hideUi) this._pihole = new Pihole(this._me, "no_network");
+        if (!this._hideUi)
+          this._pihole = new Pihole(this._me, this._settings, "no_network");
       }
     }
 

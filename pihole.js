@@ -36,13 +36,13 @@ export const Pihole = GObject.registerClass(
     GTypeName: "Pihole",
   },
   class Pihole extends GObject.Object {
-    constructor(me, command) {
+    constructor(me, settings, command) {
       super();
 
       this._me = me;
-      this._settings = this._me.getSettings();
-      this._configure();
+      this._settings = settings;
 
+      this._configure();
       this._makeMenu();
 
       this._piholeClient = new PiholeClient(this._url, this._token);
@@ -167,8 +167,7 @@ export const Pihole = GObject.registerClass(
         }
 
         this._showMainMenu(stats);
-      } catch (err) {
-        console.error(err);
+      } catch {
         // Make sure that the menu is there.
         if (this._menuButton) this._showErrorMenu(ClientStatus.FETCH_FAILED);
       }

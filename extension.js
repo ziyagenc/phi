@@ -5,7 +5,7 @@ export default class PiholeExtension extends Extension {
   enable() {
     console.log(`Enabling ${this.metadata.name}.`);
 
-    this._indicator = new PiholeIndicator(this.metadata.uuid);
+    this._indicator = new PiholeIndicator(this, this.getSettings());
   }
 
   disable() {
