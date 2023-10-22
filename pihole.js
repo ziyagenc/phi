@@ -59,8 +59,8 @@ export const Pihole = GObject.registerClass(
     }
 
     _configure() {
-      this._url = this._settings.get_string("url");
-      this._token = this._settings.get_string("token");
+      this._url = this._settings.get_string("url1");
+      this._token = this._settings.get_string("token1");
       this._interval = this._settings.get_uint("interval");
     }
 

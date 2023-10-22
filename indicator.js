@@ -2,7 +2,8 @@ import Gio from "gi://Gio";
 import GObject from "gi://GObject";
 
 import * as DBus from "./dbus.js";
-import { Pihole } from "./pihole.js";
+import { Pihole as SingleInstance } from "./pihole.js";
+import { MPihole as MultiInstance } from "./mpihole.js";
 
 export const PiholeIndicator = GObject.registerClass(
   {
@@ -26,6 +27,7 @@ export const PiholeIndicator = GObject.registerClass(
       this._hideUi = this._settings.get_boolean("hideui");
       this._restrict = this._settings.get_boolean("restrict");
       this._networks = this._settings.get_string("networks");
+      this._multimode = this._settings.get_boolean("multimode");
     }
 
     _setHandlers() {
@@ -43,6 +45,8 @@ export const PiholeIndicator = GObject.registerClass(
     }
 
     async _start() {
+      const Pihole = this._multimode ? MultiInstance : SingleInstance;
+
       this._pihole?.destroy();
       this._pihole = null;
 

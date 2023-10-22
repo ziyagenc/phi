@@ -35,8 +35,13 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
   }
 
   resetSettings(settings) {
-    settings.reset("url");
-    settings.reset("token");
+    settings.reset("url1");
+    settings.reset("token1");
+    settings.reset("instance1");
+    settings.reset("url2");
+    settings.reset("token2");
+    settings.reset("multimode");
+    settings.reset("instance2");
     settings.reset("interval");
     settings.reset("hideui");
     settings.reset("restrict");
@@ -48,8 +53,13 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     builder.set_translation_domain(this.metadata["gettext-domain"]);
     builder.add_from_file(this.path + "/prefs.ui");
 
-    const url_entry = builder.get_object("url_entry");
-    const token_entry = builder.get_object("token_entry");
+    const url_entry1 = builder.get_object("url_entry1");
+    const token_entry1 = builder.get_object("token_entry1");
+    const instance_name1 = builder.get_object("instance_name1");
+    const url_entry2 = builder.get_object("url_entry2");
+    const token_entry2 = builder.get_object("token_entry2");
+    const instance_name2 = builder.get_object("instance_name2");
+    const multimode_switch = builder.get_object("multimode_switch");
     const interval_spin = builder.get_object("interval_spin");
     const hideui_switch = builder.get_object("hideui_switch");
     const restrict_expander = builder.get_object("restrict_expander");
@@ -58,15 +68,45 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
 
     window._settings = this.getSettings();
     window._settings.bind(
-      "url",
-      url_entry,
+      "url1",
+      url_entry1,
       "text",
       Gio.SettingsBindFlags.DEFAULT
     );
     window._settings.bind(
-      "token",
-      token_entry,
+      "token1",
+      token_entry1,
       "text",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    window._settings.bind(
+      "instance1",
+      instance_name1,
+      "text",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    window._settings.bind(
+      "url2",
+      url_entry2,
+      "text",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    window._settings.bind(
+      "token2",
+      token_entry2,
+      "text",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    window._settings.bind(
+      "instance2",
+      instance_name2,
+      "text",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    window._settings.bind(
+      "multimode",
+      multimode_switch,
+      "active",
       Gio.SettingsBindFlags.DEFAULT
     );
     window._settings.bind(
@@ -97,9 +137,6 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     restrict_expander.connect("notify::enable-expansion", () => {
       if (restrict_expander.enable_expansion) {
         this.setNetworkList(networks_entry).catch(console.error);
-        window.default_height = 625;
-      } else {
-        window.default_height = 600;
       }
     });
 
@@ -108,7 +145,5 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     });
 
     window.add(builder.get_object("preferences"));
-
-    if (restrict_expander.enable_expansion) window.default_height = 625;
   }
 }

@@ -1,11 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
     <schema id="org.gnome.shell.extensions.phi" path="/org/gnome/shell/extensions/phi/">
-        <key name="url" type="s">
+        <key name="url1" type="s">
             <default>'http://pi.hole'</default>
         </key>
-        <key name="token" type="s">
+        <key name="token1" type="s">
             <default>''</default>
+        </key>
+        <key name="instance1" type="s">
+            <default>'Pi-hole #1'</default>
+        </key>
+        <key name="url2" type="s">
+            <default>'http://pi.hole'</default>
+        </key>
+        <key name="token2" type="s">
+            <default>''</default>
+        </key>
+        <key name="instance2" type="s">
+            <default>'Pi-hole #2'</default>
+        </key>
+        <key name="multimode" type="b">
+            <default>false</default>
         </key>
         <key name="interval" type="u">
             <default>10</default>

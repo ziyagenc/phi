@@ -74,13 +74,49 @@
           </object>
         </property>
         <child>
-          <object class="AdwEntryRow" id="url_entry">
+          <object class="AdwEntryRow" id="url_entry1">
             <property name="title" translatable="true">Pi-hole URL</property>
           </object>
         </child>
         <child>
-          <object class="AdwEntryRow" id="token_entry">
+          <object class="AdwEntryRow" id="token_entry1">
             <property name="title" translatable="true">API Token</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwEntryRow" id="instance_name1">
+            <property name="title" translatable="true">Instance Name</property>
+            <property name="visible" bind-source="multimode_switch" bind-property="active" bind-flags="sync-create" />
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup">
+        <property name="title" translatable="true">Multi-Instance Mode</property>
+        <property name="description" translatable="true">Enable to monitor a second Pi-hole instance.</property>
+        <property name="header-suffix">
+          <object class="GtkSwitch" id="multimode_switch">
+            <property name="active">false</property>
+            <property name="valign">3</property>
+          </object>
+        </property>
+        <child>
+          <object class="AdwEntryRow" id="url_entry2">
+            <property name="title" translatable="true">Pi-hole URL (example: http://ipaddr.of.second.pi)</property>
+            <property name="visible" bind-source="multimode_switch" bind-property="active" bind-flags="sync-create" />
+          </object>
+        </child>
+        <child>
+          <object class="AdwEntryRow" id="token_entry2">
+            <property name="title" translatable="true">API Token</property>
+            <property name="visible" bind-source="multimode_switch" bind-property="active" bind-flags="sync-create" />
+          </object>
+        </child>
+        <child>
+          <object class="AdwEntryRow" id="instance_name2">
+            <property name="title" translatable="true">Instance Name</property>
+            <property name="visible" bind-source="multimode_switch" bind-property="active" bind-flags="sync-create" />
           </object>
         </child>
       </object>
@@ -125,7 +161,7 @@
             <property name="enable-expansion">false</property>
             <child>
               <object class="AdwEntryRow" id="networks_entry">
-                <property name="title" translatable="true">Selected Networks</property>
+                <property name="title" translatable="true">Selected Networks (comma separated)</property>
               </object>
             </child>
           </object>
