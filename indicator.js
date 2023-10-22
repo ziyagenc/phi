@@ -3,7 +3,8 @@ const { Gio, GObject } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const DBus = Me.imports.dbus;
-const { Pihole } = Me.imports.pihole;
+const SingleInstance = Me.imports.pihole.Pihole;
+const MultiInstance = Me.imports.mpihole.Pihole;
 
 var PiholeIndicator = GObject.registerClass(
   class PiholeIndicator extends GObject.Object {
@@ -23,6 +24,7 @@ var PiholeIndicator = GObject.registerClass(
       this._hideUi = this._settings.get_boolean("hideui");
       this._restrict = this._settings.get_boolean("restrict");
       this._networks = this._settings.get_string("networks");
+      this._multimode = this._settings.get_boolean("multimode");
     }
 
     _setHandlers() {
@@ -40,6 +42,8 @@ var PiholeIndicator = GObject.registerClass(
     }
 
     async _start() {
+      const Pihole = this._multimode ? MultiInstance : SingleInstance;
+
       if (this._pihole) {
         this._pihole.destroy();
         this._pihole = null;

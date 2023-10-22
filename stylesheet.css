@@ -1,15 +1,56 @@
-.stat-name {
-  min-width: 150px;
-}
-
-.pref-value {
-  color: #b4b4b4;
-}
-
 .icon-disabled {
   color: rgba(255, 255, 255, 0.3);
 }
 
 .reset-button {
   min-width: 50px;
+}
+
+.stat-name {
+  min-width: 160px;
+}
+
+.stat-value {
+  text-align: right;
+  min-width: 100px;
+}
+
+.ver-value {
+  color: #b4b4b4;
+}
+
+.menu-item {
+  margin: 7px 10px;
+}
+
+.menu-item.pihole-line {
+  height: 1px;
+  background-color: #525252;
+}
+
+.phi-button {
+  background-color: #3584e4;
+  border-radius: 10px;
+  padding: 7px;
+}
+
+.phi-button:hover {
+  background-color: #458ce2;
+}
+
+.phi-button.disabled {
+  background-color: #e6e6e6;
+  color: black;
+}
+
+.phi-button.disabled:hover {
+  background-color: #eeeeee;
+}
+
+.phi-button.settings {
+  background-color: #474747;
+}
+
+.phi-button.settings:hover {
+  background-color: #575757;
 }

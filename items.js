@@ -48,7 +48,7 @@ var PrefsItem = GObject.registerClass(
   class PrefsItem extends StatsItem {
     _init() {
       super._init(_("Settings"));
-      this._valueLabel.set_style_class_name("pref-value");
+      this._valueLabel.set_style_class_name("ver-value");
       this.context = ItemContext.PREF;
     }
   }
