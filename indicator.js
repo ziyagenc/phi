@@ -1,3 +1,10 @@
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+
+import * as DBus from "./dbus.js";
+import { Pihole as SingleInstance } from "./pihole.js";
+import { MPihole as MultiInstance } from "./mpihole.js";
+
 /**
  * A class that manages the Pihole indicator based on the 
  * user's settings and the availability of the network
