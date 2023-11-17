@@ -1,3 +1,11 @@
+import Gio from "gi://Gio";
+import GLib from "gi://GLib";
+import GObject from "gi://GObject";
+import Soup from "gi://Soup";
+
+Gio._promisify(Soup.Session.prototype, "send_async", "send_finish");
+Gio._promisify(Gio.OutputStream.prototype, "splice_async", "splice_finish");
+
 export const PiholeClient = GObject.registerClass(
   {
     GTypeName: "PiholeClient",
