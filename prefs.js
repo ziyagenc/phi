@@ -19,7 +19,7 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
   async confirmReset(window) {
     const dialog = new Adw.MessageDialog({
       heading: _("Reset Settings"),
-      body: _("Do you want to remove all settings?"),
+      body: _("Do you want to reset all settings?"),
       close_response: "cancel",
       modal: true,
       transient_for: window,
@@ -40,18 +40,19 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     settings.reset("instance1");
     settings.reset("url2");
     settings.reset("token2");
-    settings.reset("multimode");
     settings.reset("instance2");
+    settings.reset("multimode");
     settings.reset("interval");
     settings.reset("hideui");
-    settings.reset("restrict");
-    settings.reset("networks");
+    settings.reset("check-network");
+    settings.reset("network");
   }
 
   fillPreferencesWindow(window) {
     const builder = new Gtk.Builder();
     builder.set_translation_domain(this.metadata["gettext-domain"]);
-    builder.add_from_file(this.path + "/prefs.ui");
+    builder.add_from_file(this.path + "/ui/piholelist.ui");
+    builder.add_from_file(this.path + "/ui/behavior.ui");
 
     const url_entry1 = builder.get_object("url_entry1");
     const token_entry1 = builder.get_object("token_entry1");
@@ -62,8 +63,8 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     const multimode_switch = builder.get_object("multimode_switch");
     const interval_spin = builder.get_object("interval_spin");
     const hideui_switch = builder.get_object("hideui_switch");
-    const restrict_expander = builder.get_object("restrict_expander");
-    const networks_entry = builder.get_object("networks_entry");
+    const check_network_switch = builder.get_object("check_network_switch");
+    const network_entry = builder.get_object("network_entry");
     const reset_button = builder.get_object("reset_button");
 
     window._settings = this.getSettings();
@@ -122,21 +123,21 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
       Gio.SettingsBindFlags.DEFAULT
     );
     window._settings.bind(
-      "restrict",
-      restrict_expander,
-      "enable_expansion",
+      "check-network",
+      check_network_switch,
+      "active",
       Gio.SettingsBindFlags.DEFAULT
     );
     window._settings.bind(
-      "networks",
-      networks_entry,
+      "network",
+      network_entry,
       "text",
       Gio.SettingsBindFlags.DEFAULT
     );
 
-    restrict_expander.connect("notify::enable-expansion", () => {
-      if (restrict_expander.enable_expansion) {
-        this.setNetworkList(networks_entry).catch(console.error);
+    check_network_switch.connect("notify::active", () => {
+      if (check_network_switch.active) {
+        this.setNetworkList(network_entry).catch(console.error);
       }
     });
 
@@ -144,6 +145,7 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
       this.confirmReset(window);
     });
 
-    window.add(builder.get_object("preferences"));
+    window.add(builder.get_object("piholelist"));
+    window.add(builder.get_object("behavior"));
   }
 }

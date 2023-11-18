@@ -25,8 +25,8 @@ export const PiholeIndicator = GObject.registerClass(
 
     _configure() {
       this._hideUi = this._settings.get_boolean("hideui");
-      this._restrict = this._settings.get_boolean("restrict");
-      this._networks = this._settings.get_string("networks");
+      this._check_network = this._settings.get_boolean("check-network");
+      this._network = this._settings.get_string("network");
       this._multimode = this._settings.get_boolean("multimode");
     }
 
@@ -51,18 +51,20 @@ export const PiholeIndicator = GObject.registerClass(
       this._pihole = null;
 
       if (this._network_monitor.network_available) {
-        if (this._restrict && this._hideUi) {
+        if (this._check_network && this._hideUi) {
           const currentNetworkId = await DBus.getNetworkIdAsync();
 
-          this._pihole = this._networks.split(";").includes(currentNetworkId)
-            ? new Pihole(this._me, this._settings, "start")
-            : null;
-        } else if (this._restrict) {
+          this._pihole =
+            this._network === currentNetworkId
+              ? new Pihole(this._me, this._settings, "start")
+              : null;
+        } else if (this._check_network) {
           const currentNetworkId = await DBus.getNetworkIdAsync();
 
-          this._pihole = this._networks.split(";").includes(currentNetworkId)
-            ? new Pihole(this._me, this._settings, "start")
-            : new Pihole(this._me, this._settings, "unknown_network");
+          this._pihole =
+            this._network === currentNetworkId
+              ? new Pihole(this._me, this._settings, "start")
+              : new Pihole(this._me, this._settings, "unknown_network");
         } else {
           this._pihole = new Pihole(this._me, this._settings, "start");
         }

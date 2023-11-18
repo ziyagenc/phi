@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0" />
+  <object class="AdwPreferencesPage" id="piholelist">
+    <property name="name">piholelist</property>
+    <property name="title" translatable="true">Pi-hole List</property>
+    <property name="icon-name">view-list-symbolic</property>
+    <child>
+      <object class="AdwPreferencesGroup">
+        <property name="title" translatable="true">Pi-hole Settings</property>
+        <property name="description" translatable="true">Enter the information required to access your Pi-hole.</property>
+        <property name="header-suffix">
+          <object class="GtkMenuButton">
+            <property name="halign">2</property>
+            <property name="valign">3</property>
+            <property name="icon-name">dialog-information-symbolic</property>
+            <property name="popover">
+              <object class="GtkPopover">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">1</property>
+                    <child>
+                      <object class="GtkBox" id="url_examples">
+                        <property name="margin-top">6</property>
+                        <property name="margin-bottom">12</property>
+                        <property name="margin-start">6</property>
+                        <property name="margin-end">6</property>
+                        <property name="orientation">1</property>
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="halign">1</property>
+                            <property name="label" translatable="true">Following input formats are valid for the URL of Pi-hole API:</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="halign">1</property>
+                            <property name="label" translatable="true">http://pi.hole/admin/api.php</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="halign">1</property>
+                            <property name="label" translatable="true">http://ip.addres.of.pihole/admin/api.php</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="halign">1</property>
+                            <property name="label" translatable="true">http://sub.domain.com/custom/path/to/api.php</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparator">
+                        <property name="margin-start">6</property>
+                        <property name="margin-end">6</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox" id="api_token_steps">
+                        <property name="margin-top">12</property>
+                        <property name="margin-bottom">6</property>
+                        <property name="margin-start">6</property>
+                        <property name="margin-end">6</property>
+                        <property name="orientation">1</property>
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="halign">1</property>
+                            <property name="label" translatable="true">You can get the authentication token as follows:</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="halign">1</property>
+                            <property name="label" translatable="true">1. Login to Pi-hole &lt;b&gt;web interface&lt;/b&gt;.</property>
+                            <property name="use-markup">true</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="halign">1</property>
+                            <property name="label" translatable="true">2. On the left menu, click &lt;b&gt;Settings&lt;/b&gt;.</property>
+                            <property name="use-markup">true</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="halign">1</property>
+                            <property name="label" translatable="true">3. Go to &lt;b&gt;API&lt;/b&gt; tab, then click &lt;b&gt;Show API Token&lt;/b&gt; at the bottom left.</property>
+                            <property name="use-markup">true</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="halign">1</property>
+                            <property name="label" translatable="true">4. On the confirmation dialog, select &lt;b&gt;Yes, show API token&lt;/b&gt;.</property>
+                            <property name="use-markup">true</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="halign">1</property>
+                            <property name="label" translatable="true">5. The token will appear &lt;b&gt;below the QR code&lt;/b&gt;.</property>
+                            <property name="use-markup">true</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </property>
+            <style>
+              <class name="flat" />
+            </style>
+          </object>
+        </property>
+        <child>
+          <object class="AdwEntryRow" id="url_entry1">
+            <property name="title" translatable="true">URL of Pi-hole API</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwEntryRow" id="token_entry1">
+            <property name="title" translatable="true">API Token</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwEntryRow" id="instance_name1">
+            <property name="title" translatable="true">Instance Name</property>
+            <property name="visible" bind-source="multimode_switch" bind-property="active" bind-flags="sync-create" />
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup">
+        <property name="title" translatable="true">Multi-Instance Mode</property>
+        <property name="description" translatable="true">Enable to monitor a second Pi-hole instance.</property>
+        <property name="header-suffix">
+          <object class="GtkSwitch" id="multimode_switch">
+            <property name="active">false</property>
+            <property name="valign">3</property>
+          </object>
+        </property>
+        <child>
+          <object class="AdwEntryRow" id="url_entry2">
+            <property name="title" translatable="true">URL of Pi-hole API</property>
+            <property name="visible" bind-source="multimode_switch" bind-property="active" bind-flags="sync-create" />
+          </object>
+        </child>
+        <child>
+          <object class="AdwEntryRow" id="token_entry2">
+            <property name="title" translatable="true">API Token</property>
+            <property name="visible" bind-source="multimode_switch" bind-property="active" bind-flags="sync-create" />
+          </object>
+        </child>
+        <child>
+          <object class="AdwEntryRow" id="instance_name2">
+            <property name="title" translatable="true">Instance Name</property>
+            <property name="visible" bind-source="multimode_switch" bind-property="active" bind-flags="sync-create" />
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

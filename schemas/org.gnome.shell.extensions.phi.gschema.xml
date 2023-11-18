@@ -2,7 +2,7 @@
 <schemalist>
     <schema id="org.gnome.shell.extensions.phi" path="/org/gnome/shell/extensions/phi/">
         <key name="url1" type="s">
-            <default>'http://pi.hole'</default>
+            <default>'http://pi.hole/admin/api.php'</default>
         </key>
         <key name="token1" type="s">
             <default>''</default>
@@ -11,7 +11,7 @@
             <default>'Pi-hole #1'</default>
         </key>
         <key name="url2" type="s">
-            <default>'http://pi.hole'</default>
+            <default>'http://pi.hole/admin/api.php'</default>
         </key>
         <key name="token2" type="s">
             <default>''</default>
@@ -28,10 +28,10 @@
         <key name="hideui" type="b">
             <default>false</default>
         </key>
-        <key name="restrict" type="b">
+        <key name="check-network" type="b">
             <default>false</default>
         </key>
-        <key name="networks" type="s">
+        <key name="network" type="s">
             <default>''</default>
         </key>
     </schema>

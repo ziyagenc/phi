@@ -13,7 +13,7 @@ export const PiholeClient = GObject.registerClass(
   class PiholeClient extends GObject.Object {
     constructor(url, token) {
       super();
-      this._authUrl = url + "/admin/api.php?auth=" + token;
+      this._authUrl = url + "?auth=" + token;
       this._summaryUrl = this._authUrl + "&summary";
       this._versionsUrl = this._authUrl + "&versions";
 
