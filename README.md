@@ -3,11 +3,12 @@
 Quickly access your beloved Pi-hole from GNOME Shell.
 
 Phi provides the following features:
+- Monitor single or multiple Pi-hole instances,
+- Enable/disable blocking,
 - Display status and main statistics,
-- Toggle button,
 - Show version information of Pi-hole, and notify when there is an update.
 
-You can also configure Phi to look for Pi-hole in certain networks only. This might be useful if your computer connects to school, work or public Wi-Fi.
+You can also configure Phi to look for Pi-hole only in a certain network. This might be useful if your computer connects to school, work or public Wi-Fi.
 
 ![Phi Screenshot](img/phi.png)
 
