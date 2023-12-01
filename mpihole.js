@@ -176,10 +176,10 @@ export const MPihole = GObject.registerClass(
 
           // TODO: Fix repetiton.
           // Make sure that the menu is there.
-          if (!this._menuButton) return;
-
-          this._settingsItem.text1 = ver1.core_current;
-          this._settingsItem.text2 = ver2.core_current;
+          if (this._menuButton) {
+            this._settingsItem.text1 = ver1.core_current;
+            this._settingsItem.text2 = ver2.core_current;
+          }
 
           this._checkedUpdate = true;
         }
