@@ -10,6 +10,7 @@ import {
 import * as DBus from "./dbus.js";
 
 Gio._promisify(Adw.MessageDialog.prototype, "choose", "choose_finish");
+Gio._promisify(Gtk.UriLauncher.prototype, "launch", "launch_finish");
 
 export default class PiholeIndicatorPrefs extends ExtensionPreferences {
   async setNetworkList(networks_entry) {
@@ -53,6 +54,7 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     builder.set_translation_domain(this.metadata["gettext-domain"]);
     builder.add_from_file(this.path + "/ui/piholelist.ui");
     builder.add_from_file(this.path + "/ui/behavior.ui");
+    builder.add_from_file(this.path + "/ui/about.ui");
 
     const url_entry1 = builder.get_object("url_entry1");
     const token_entry1 = builder.get_object("token_entry1");
@@ -66,6 +68,17 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     const check_network_switch = builder.get_object("check_network_switch");
     const network_entry = builder.get_object("network_entry");
     const reset_button = builder.get_object("reset_button");
+    const phi_logo = builder.get_object("phi_logo");
+    const action_issue = builder.get_object("action_issue");
+    const action_whats_new = builder.get_object("action_whats_new");
+    const action_changelog = builder.get_object("action_changelog");
+    const action_legal = builder.get_object("action_legal");
+    const button_go_back = builder.get_object("button_go_back");
+    const button_go_back2 = builder.get_object("button_go_back2");
+    const page_whats_new = builder.get_object("page_whats_new");
+    const page_legal = builder.get_object("page_legal");
+
+    phi_logo.file = this.path + "/icons/phi-symbolic.svg";
 
     window._settings = this.getSettings();
     window._settings.bind(
@@ -145,7 +158,36 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
       this.confirmReset(window);
     });
 
+    action_issue.connect("activated", () => {
+      new Gtk.UriLauncher({ uri: "https://github.com/ziyagenc/phi/issues" })
+        .launch(window, null)
+        .catch(console.error);
+    });
+
+    action_whats_new.connect("activated", () => {
+      window.present_subpage(page_whats_new);
+    });
+
+    action_changelog.connect("activated", () => {
+      new Gtk.UriLauncher({ uri: "https://github.com/ziyagenc/phi#changelog" })
+        .launch(window, null)
+        .catch(console.error);
+    });
+
+    action_legal.connect("activated", () => {
+      window.present_subpage(page_legal);
+    });
+
+    button_go_back.connect("clicked", () => {
+      window.close_subpage();
+    });
+
+    button_go_back2.connect("clicked", () => {
+      window.close_subpage();
+    });
+
     window.add(builder.get_object("piholelist"));
     window.add(builder.get_object("behavior"));
+    window.add(builder.get_object("about"));
   }
 }

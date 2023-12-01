@@ -27,6 +27,8 @@ export const MPihole = GObject.registerClass(
       this._piholeClient2 = new PiholeClient(this._url2, this._token2);
       this._setHandlers();
 
+      this._checkedUpdate = false;
+
       if (command === "start") {
         this._startUpdating();
         this._isRunning = true;
@@ -152,10 +154,35 @@ export const MPihole = GObject.registerClass(
           this._piholeClient2.fetchSummary(),
         ]);
 
-        const [ver1, ver2] = await Promise.all([
-          this._piholeClient1.fetchVersion(),
-          this._piholeClient2.fetchVersion(),
-        ]);
+        if (!this._checkedUpdate) {
+          const [ver1, ver2] = await Promise.all([
+            this._piholeClient1.fetchVersion(),
+            this._piholeClient2.fetchVersion(),
+          ]);
+
+          const updateExistsForPi1 =
+            ver1.core_update || ver1.FTL_update || ver1.web_update;
+
+          if (updateExistsForPi1) {
+            Main.notify("Phi", `Update available for ${this._name1}.`);
+          }
+
+          const updateExistsForPi2 =
+            ver2.core_update || ver2.FTL_update || ver2.web_update;
+
+          if (updateExistsForPi2) {
+            Main.notify("Phi", `Update available for ${this._name2}.`);
+          }
+
+          // TODO: Fix repetiton.
+          // Make sure that the menu is there.
+          if (!this._menuButton) return;
+
+          this._settingsItem.text1 = ver1.core_current;
+          this._settingsItem.text2 = ver2.core_current;
+
+          this._checkedUpdate = true;
+        }
 
         // Make sure that the menu is there.
         if (!this._menuButton) return;
@@ -177,9 +204,6 @@ export const MPihole = GObject.registerClass(
         this._queriesBlockedItem.text2 = summary2.ads_blocked_today;
         this._percentageBlockedItem.text2 = summary2.ads_percentage_today + "%";
         this._domainsOnAdlistsItem.text2 = summary2.domains_being_blocked;
-
-        this._settingsItem.text1 = ver1.core_current;
-        this._settingsItem.text2 = ver2.core_current;
       } catch (err) {
         console.log(err, "Error in _updateUI");
       }

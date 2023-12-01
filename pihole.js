@@ -222,6 +222,11 @@ export const Pihole = GObject.registerClass(
     _updateVersionLabel(json) {
       const updateExists =
         json.core_update || json.FTL_update || json.web_update;
+
+      if (updateExists) {
+        Main.notify("Phi", "Update available for Pi-hole.");
+      }
+
       this._settingsItem.text = updateExists
         ? _("Update available!")
         : `Pi-hole ${json.core_current}`;
