@@ -16,7 +16,8 @@ You can also configure Phi to look for Pi-hole only in a certain network. This m
 You can install Phi via official page of [GNOME Shell Extensions](https://extensions.gnome.org/extension/6400/phi-pi-hole-indicator/).
 
 ## Changelog
-
+### v1.3
+- Show update notifications in GNOME Shell.
 ### v1.2
 - [#2](https://github.com/ziyagenc/phi/issues/2): Support custom paths in URL of Pi-hole API.
 ### v1.1
