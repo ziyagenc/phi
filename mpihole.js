@@ -14,6 +14,21 @@ export const MPihole = GObject.registerClass(
     GTypeName: "MPihole",
   },
   class MPihole extends GObject.Object {
+
+  /**
+   * MPihole class represents a panel menu button for controlling and displaying data from two instances of the PiholeClient class
+   * 
+   * Inputs:
+   * - me: An object representing the current extension
+   * - settings: An object representing the extension settings
+   * - command: A string indicating the command to execute
+   *
+   * Outputs:
+   * - The MPihole object is created and the panel menu button is added to the status area
+   * - The menu items are updated with data fetched from the Client instances
+   * - Items are updated periodically based on the specified interval
+   */
+
     constructor(me, settings, command) {
       super();
 
