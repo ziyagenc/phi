@@ -42,7 +42,7 @@
                 <property name="margin-bottom">24</property>
                 <child>
                   <object class="GtkLabel">
-                    <property name="label">v1.3</property>
+                    <property name="label">v1.4</property>
                     <style>
                       <class name="title-4" />
                     </style>
@@ -124,7 +124,7 @@
             <property name="valign">1</property>
             <child>
               <object class="GtkLabel">
-                <property name="label">v1.3</property>
+                <property name="label">v1.4</property>
                 <property name="halign">1</property>
                 <style>
                   <class name="title-4" />
@@ -133,8 +133,8 @@
             </child>
             <child>
               <object class="GtkLabel">
-                <property name="label">- Show notification if there is an update for Pi-hole software.
-- Added page 'About' to preferences window.</property>
+                <property name="label">- Update for GNOME 46.
+- Fix error message while adding _valueLabel to StatsItem.</property>
                 <property name="margin-bottom">12</property>
                 <property name="wrap">true</property>
               </object>

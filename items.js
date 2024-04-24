@@ -30,7 +30,7 @@ export const StatsItem = GObject.registerClass(
       });
 
       this.actor.add_child(this._nameLabel);
-      this.actor.add(this._valueLabel);
+      this.actor.add_actor(this._valueLabel);
 
       this.context = ItemContext.SUCCESS;
     }
