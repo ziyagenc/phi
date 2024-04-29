@@ -7,5 +7,6 @@
   "shell-version": ["45", "46"],
   "url": "https://github.com/ziyagenc/phi",
   "uuid": "phi@ziyagenc.github.com",
-  "version-name": "1.4"
+  "version": 12,
+  "version-name": "1.5"
 }

@@ -4,6 +4,7 @@ import GObject from "gi://GObject";
 import St from "gi://St";
 
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
+import * as MessageTray from "resource:///org/gnome/shell/ui/messageTray.js";
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
 
@@ -219,12 +220,27 @@ export const Pihole = GObject.registerClass(
       }
     }
 
+    _showNotification(message) {
+      const source = new MessageTray.Source({
+        title: "Phi",
+        icon: this._menuButton.icon.gicon,
+      });
+      const notification = new MessageTray.Notification({
+        source,
+        title: message,
+        isTransient: true,
+      });
+
+      Main.messageTray.add(source);
+      source.addNotification(notification);
+    }
+
     _updateVersionLabel(json) {
       const updateExists =
         json.core_update || json.FTL_update || json.web_update;
 
       if (updateExists) {
-        Main.notify("Phi", "Update available for Pi-hole.");
+        this._showNotification("Update available for Pi-hole.");
       }
 
       this._settingsItem.text = updateExists

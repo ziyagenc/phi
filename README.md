@@ -20,6 +20,10 @@ You can install Phi via official page of [GNOME Shell Extensions](https://extens
 
 ## Changelog
 
+### v1.5
+
+- Fix error while adding \_valueLabel to StatsItem in items.js.
+
 ### v1.4
 
 - Update for GNOME 46.

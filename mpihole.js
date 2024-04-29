@@ -4,6 +4,7 @@ import GObject from "gi://GObject";
 import St from "gi://St";
 
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
+import * as MessageTray from "resource:///org/gnome/shell/ui/messageTray.js";
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 
 import { PiholeClient } from "./client.js";
@@ -147,6 +148,21 @@ export const MPihole = GObject.registerClass(
       this._menuButton.icon.set_style_class_name(iconStyle);
     }
 
+    _showNotification(message) {
+      const source = new MessageTray.Source({
+        title: "Phi",
+        icon: this._menuButton.icon.gicon,
+      });
+      const notification = new MessageTray.Notification({
+        source,
+        title: message,
+        isTransient: true,
+      });
+
+      Main.messageTray.add(source);
+      source.addNotification(notification);
+    }
+
     async _updateUI() {
       try {
         const [summary1, summary2] = await Promise.all([
@@ -164,14 +180,14 @@ export const MPihole = GObject.registerClass(
             ver1.core_update || ver1.FTL_update || ver1.web_update;
 
           if (updateExistsForPi1) {
-            Main.notify("Phi", `Update available for ${this._name1}.`);
+            this._showNotification(`Update available for ${this._name1}.`);
           }
 
           const updateExistsForPi2 =
             ver2.core_update || ver2.FTL_update || ver2.web_update;
 
           if (updateExistsForPi2) {
-            Main.notify("Phi", `Update available for ${this._name2}.`);
+            this._showNotification(`Update available for ${this._name2}.`);
           }
 
           // TODO: Fix repetiton.
