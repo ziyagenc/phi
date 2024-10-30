@@ -20,6 +20,10 @@ You can install Phi via official page of [GNOME Shell Extensions](https://extens
 
 ## Changelog
 
+### v1.6
+
+- Update for GNOME 47.
+
 ### v1.5
 
 - Fix error while adding \_valueLabel to StatsItem in items.js.
@@ -49,4 +53,4 @@ You can install Phi via official page of [GNOME Shell Extensions](https://extens
 
 Phi is distributed under the GNU General Public License, version 3.
 
-Copyright © 2023 Ziya Genç.
+Copyright © 2024 Ziya Genç.
