@@ -32,7 +32,7 @@ export const StatsItem = GObject.registerClass(
       this.actor.add_child(this._nameLabel);
       this.actor.add_child(this._valueLabel);
 
-      this.context = ItemContext.SUCCESS;
+      this.itemContext = ItemContext.SUCCESS;
     }
 
     get text() {
@@ -56,7 +56,7 @@ export const PrefsItem = GObject.registerClass(
     _init() {
       super._init(_("Settings"));
       this._valueLabel.set_style_class_name("ver-value");
-      this.context = ItemContext.PREF;
+      this.itemContext = ItemContext.PREF;
     }
   }
 );

@@ -20,6 +20,10 @@ You can install Phi via official page of [GNOME Shell Extensions](https://extens
 
 ## Changelog
 
+### v1.7
+
+- Fix [#8](https://github.com/ziyagenc/phi/issues/8): Change context to itemContext to prevent conflicts with ClutterContext.
+
 ### v1.6
 
 - Update for GNOME 47.

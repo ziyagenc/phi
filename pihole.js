@@ -83,7 +83,7 @@ export const Pihole = GObject.registerClass(
       // Error message item -- shown when an error occurs.
       // It has ItemContext.ERROR set in its "context" field.
       this._errorMessageItem = new PopupMenu.PopupMenuItem(_("Initializing"));
-      this._errorMessageItem.context = ItemContext.ERROR;
+      this._errorMessageItem.itemContext = ItemContext.ERROR;
       this._menuButton.menu.addMenuItem(this._errorMessageItem);
 
       // Main menu items -- display information received from Pi-hole.
@@ -94,12 +94,12 @@ export const Pihole = GObject.registerClass(
         false,
         {}
       );
-      this._toggleItem.context = ItemContext.SUCCESS;
+      this._toggleItem.itemContext = ItemContext.SUCCESS;
       this._menuButton.menu.addMenuItem(this._toggleItem);
 
       // This separator will be hidden when error menu is shown.
       this._mainSeparator = new PopupMenu.PopupSeparatorMenuItem();
-      this._mainSeparator.context = ItemContext.SUCCESS;
+      this._mainSeparator.itemContext = ItemContext.SUCCESS;
       this._menuButton.menu.addMenuItem(this._mainSeparator);
 
       this._totalQueriesItem = new StatsItem(_("Total Queries"));
@@ -214,7 +214,7 @@ export const Pihole = GObject.registerClass(
 
       if (this._currentMenu !== PiholeMenuTypes.MAINMENU) {
         this._menuButton.menu.box.get_children().forEach((item) => {
-          item.visible = item.context !== ItemContext.ERROR;
+          item.visible = item.itemContext !== ItemContext.ERROR;
         });
         this._currentMenu = PiholeMenuTypes.MAINMENU;
       }
@@ -254,7 +254,7 @@ export const Pihole = GObject.registerClass(
 
       if (this._currentMenu !== PiholeMenuTypes.ERRORMENU) {
         this._menuButton.menu.box.get_children().forEach((item) => {
-          item.visible = item.context !== ItemContext.SUCCESS;
+          item.visible = item.itemContext !== ItemContext.SUCCESS;
         });
         this._currentMenu = PiholeMenuTypes.ERRORMENU;
       }
