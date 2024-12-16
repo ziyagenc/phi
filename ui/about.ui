@@ -42,7 +42,7 @@
                 <property name="margin-bottom">24</property>
                 <child>
                   <object class="GtkLabel">
-                    <property name="label">v1.7</property>
+                    <property name="label">v1.8</property>
                     <style>
                       <class name="title-4" />
                     </style>
@@ -124,7 +124,7 @@
             <property name="valign">1</property>
             <child>
               <object class="GtkLabel">
-                <property name="label">v1.7</property>
+                <property name="label">v1.8</property>
                 <property name="halign">1</property>
                 <style>
                   <class name="title-4" />
@@ -133,7 +133,7 @@
             </child>
             <child>
               <object class="GtkLabel">
-                <property name="label">- Update for GNOME 47.</property>
+                <property name="label">- Add option to disable checking Pi-hole software updates.</property>
                 <property name="margin-bottom">12</property>
                 <property name="wrap">true</property>
               </object>

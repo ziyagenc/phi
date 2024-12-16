@@ -63,6 +63,7 @@ export const Pihole = GObject.registerClass(
       this._url = this._settings.get_string("url1");
       this._token = this._settings.get_string("token1");
       this._interval = this._settings.get_uint("interval");
+      this._checkNewVersion = this._settings.get_boolean("check-new-version");
     }
 
     _makeMenu() {
@@ -236,16 +237,19 @@ export const Pihole = GObject.registerClass(
     }
 
     _updateVersionLabel(json) {
+      this._settingsItem.text = `Pi-hole ${json.core_current}`;
+
+      if (!this._checkNewVersion) {
+        return;
+      }
+
       const updateExists =
         json.core_update || json.FTL_update || json.web_update;
 
       if (updateExists) {
         this._showNotification("Update available for Pi-hole.");
+        this._settingsItem.text = _("Update available!");
       }
-
-      this._settingsItem.text = updateExists
-        ? _("Update available!")
-        : `Pi-hole ${json.core_current}`;
     }
 
     _showErrorMenu(errorMessage) {

@@ -44,6 +44,7 @@ export const MPihole = GObject.registerClass(
       this._name1 = this._settings.get_string("instance1");
       this._name2 = this._settings.get_string("instance2");
       this._interval = this._settings.get_uint("interval");
+      this._checkNewVersion = this._settings.get_boolean("check-new-version");
     }
 
     _makeMenu() {
@@ -170,24 +171,26 @@ export const MPihole = GObject.registerClass(
           this._piholeClient2.fetchSummary(),
         ]);
 
-        if (!this._checkedUpdate) {
+        if (!this._checkedUpdate || this._checkNewVersion) {
           const [ver1, ver2] = await Promise.all([
             this._piholeClient1.fetchVersion(),
             this._piholeClient2.fetchVersion(),
           ]);
 
-          const updateExistsForPi1 =
-            ver1.core_update || ver1.FTL_update || ver1.web_update;
+          if (this._checkNewVersion) {
+            const updateExistsForPi1 =
+              ver1.core_update || ver1.FTL_update || ver1.web_update;
 
-          if (updateExistsForPi1) {
-            this._showNotification(`Update available for ${this._name1}.`);
-          }
+            if (updateExistsForPi1) {
+              this._showNotification(`Update available for ${this._name1}.`);
+            }
 
-          const updateExistsForPi2 =
-            ver2.core_update || ver2.FTL_update || ver2.web_update;
+            const updateExistsForPi2 =
+              ver2.core_update || ver2.FTL_update || ver2.web_update;
 
-          if (updateExistsForPi2) {
-            this._showNotification(`Update available for ${this._name2}.`);
+            if (updateExistsForPi2) {
+              this._showNotification(`Update available for ${this._name2}.`);
+            }
           }
 
           // TODO: Fix repetiton.

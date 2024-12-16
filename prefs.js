@@ -47,6 +47,7 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     settings.reset("hideui");
     settings.reset("check-network");
     settings.reset("network");
+    settings.reset("check-new-version");
   }
 
   fillPreferencesWindow(window) {
@@ -77,6 +78,9 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     const button_go_back2 = builder.get_object("button_go_back2");
     const page_whats_new = builder.get_object("page_whats_new");
     const page_legal = builder.get_object("page_legal");
+    const check_new_version_switch = builder.get_object(
+      "check_new_version_switch"
+    );
 
     phi_logo.file = this.path + "/icons/phi-symbolic.svg";
 
@@ -145,6 +149,12 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
       "network",
       network_entry,
       "text",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    window._settings.bind(
+      "check-new-version",
+      check_new_version_switch,
+      "active",
       Gio.SettingsBindFlags.DEFAULT
     );
 

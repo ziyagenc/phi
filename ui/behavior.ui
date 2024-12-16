@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk" version="4.0" />
+  <requires lib="gtk" version="4.0"/>
   <object class="AdwPreferencesPage" id="behavior">
     <property name="name">behavior</property>
     <property name="title" translatable="true">Behavior</property>
@@ -30,6 +30,20 @@
             <property name="activatable-widget">hideui_switch</property>
             <child>
               <object class="GtkSwitch" id="hideui_switch">
+                <property name="active">false</property>
+                <property name="valign">3</property>
+                <property name="margin-start">10</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="true">Check Pi-hole version at start</property>
+            <property name="subtitle" translatable="true">Nofify if a new version of Pi-hole is available.</property>
+            <property name="activatable-widget">check_new_version_switch</property>
+            <child>
+              <object class="GtkSwitch" id="check_new_version_switch">
                 <property name="active">false</property>
                 <property name="valign">3</property>
                 <property name="margin-start">10</property>
@@ -73,8 +87,8 @@
             <property name="label" translatable="true">Reset</property>
             <property name="valign">3</property>
             <style>
-              <class name="destructive-action" />
-              <class name="reset-button" />
+              <class name="destructive-action"/>
+              <class name="reset-button"/>
             </style>
           </object>
         </child>
