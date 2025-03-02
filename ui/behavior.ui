@@ -3,15 +3,15 @@
   <requires lib="gtk" version="4.0"/>
   <object class="AdwPreferencesPage" id="behavior">
     <property name="name">behavior</property>
-    <property name="title" translatable="true">Behavior</property>
+    <property name="title" translatable="yes">Behavior</property>
     <property name="icon-name">emblem-system-symbolic</property>
     <child>
       <object class="AdwPreferencesGroup">
-        <property name="title" translatable="true">Behaviour</property>
+        <property name="title" translatable="yes">Behaviour</property>
         <child>
           <object class="AdwSpinRow" id="interval_spin">
-            <property name="title" translatable="true">Update interval (seconds)</property>
-            <property name="subtitle" translatable="true">For better performance, update less frequently.</property>
+            <property name="title" translatable="yes">Update interval (seconds)</property>
+            <property name="subtitle" translatable="yes">For better performance, update less frequently.</property>
             <property name="adjustment">
               <object class="GtkAdjustment">
                 <property name="lower">1</property>
@@ -25,8 +25,22 @@
         </child>
         <child>
           <object class="AdwActionRow">
-            <property name="title" translatable="true">Hide indicator if disconnected</property>
-            <property name="subtitle" translatable="true">Can be combined with network selection below.</property>
+            <property name="title" translatable="yes">Fetch sensor data (requires Pi-hole v6)</property>
+            <property name="subtitle" translatable="yes">Show CPU, memory usage and temperature.</property>
+            <property name="activatable-widget">sensor_switch</property>
+            <child>
+              <object class="GtkSwitch" id="sensor_switch">
+                <property name="active">false</property>
+                <property name="valign">3</property>
+                <property name="margin-start">10</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Hide indicator if disconnected</property>
+            <property name="subtitle" translatable="yes">Can be combined with network selection below.</property>
             <property name="activatable-widget">hideui_switch</property>
             <child>
               <object class="GtkSwitch" id="hideui_switch">
@@ -39,8 +53,8 @@
         </child>
         <child>
           <object class="AdwActionRow">
-            <property name="title" translatable="true">Check Pi-hole version at start</property>
-            <property name="subtitle" translatable="true">Nofify if a new version of Pi-hole is available.</property>
+            <property name="title" translatable="yes">Check Pi-hole version at start</property>
+            <property name="subtitle" translatable="yes">Notify if a new version of Pi-hole is available.</property>
             <property name="activatable-widget">check_new_version_switch</property>
             <child>
               <object class="GtkSwitch" id="check_new_version_switch">
@@ -55,11 +69,11 @@
     </child>
     <child>
       <object class="AdwPreferencesGroup">
-        <property name="title" translatable="true">Network</property>
+        <property name="title" translatable="yes">Network</property>
         <child>
           <object class="AdwActionRow">
-            <property name="title" translatable="true">Check network name</property>
-            <property name="subtitle" translatable="true">Might be useful if this computer connects to different networks.</property>
+            <property name="title" translatable="yes">Check network name</property>
+            <property name="subtitle" translatable="yes">Might be useful if this computer connects to different networks.</property>
             <property name="activatable-widget">check_network_switch</property>
             <child>
               <object class="GtkSwitch" id="check_network_switch">
@@ -72,19 +86,19 @@
         </child>
         <child>
           <object class="AdwEntryRow" id="network_entry">
-            <property name="title" translatable="true">Selected Network</property>
+            <property name="title" translatable="yes">Selected Network</property>
           </object>
         </child>
       </object>
     </child>
     <child>
       <object class="AdwPreferencesGroup">
-        <property name="title" translatable="true">Reset</property>
-        <property name="description" translatable="true">Deletes all settings. This action cannot be undone.</property>
+        <property name="title" translatable="yes">Reset</property>
+        <property name="description" translatable="yes">Deletes all settings. This action cannot be undone.</property>
         <child type="header-suffix">
           <object class="GtkButton" id="reset_button">
             <property name="name">Reset</property>
-            <property name="label" translatable="true">Reset</property>
+            <property name="label" translatable="yes">Reset</property>
             <property name="valign">3</property>
             <style>
               <class name="destructive-action"/>

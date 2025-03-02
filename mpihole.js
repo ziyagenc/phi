@@ -7,7 +7,12 @@ import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import * as MessageTray from "resource:///org/gnome/shell/ui/messageTray.js";
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 
+// PiholeClient v5
 import { PiholeClient } from "./client.js";
+
+// PiholeClient v6
+import { PiholeClient6 } from "./client6.js";
+
 import { HeaderItem, Line, MultiStatItem, TailItem } from "./mitems.js";
 
 export const MPihole = GObject.registerClass(
@@ -24,8 +29,18 @@ export const MPihole = GObject.registerClass(
       this._configure();
       this._makeMenu();
 
-      this._piholeClient1 = new PiholeClient(this._url1, this._token1);
-      this._piholeClient2 = new PiholeClient(this._url2, this._token2);
+      if (this._version1 == 0) {
+        this._piholeClient1 = new PiholeClient(this._url1, this._token1);
+      } else {
+        this._piholeClient1 = new PiholeClient6(this._url1, this._token1);
+      }
+
+      if (this._version2 == 0) {
+        this._piholeClient2 = new PiholeClient(this._url2, this._token2);
+      } else {
+        this._piholeClient2 = new PiholeClient6(this._url2, this._token2);
+      }
+
       this._setHandlers();
 
       this._checkedUpdate = false;
@@ -43,8 +58,11 @@ export const MPihole = GObject.registerClass(
       this._token2 = this._settings.get_string("token2");
       this._name1 = this._settings.get_string("instance1");
       this._name2 = this._settings.get_string("instance2");
+      this._version1 = this._settings.get_uint("version1");
+      this._version2 = this._settings.get_uint("version2");
       this._interval = this._settings.get_uint("interval");
       this._checkNewVersion = this._settings.get_boolean("check-new-version");
+      this._showSensorData = this._settings.get_boolean("show-sensor-data");
     }
 
     _makeMenu() {
@@ -68,9 +86,17 @@ export const MPihole = GObject.registerClass(
       this._queriesBlockedItem = new MultiStatItem(_("Queries Blocked"));
       this._percentageBlockedItem = new MultiStatItem(_("Percentage Blocked"));
       this._domainsOnAdlistsItem = new MultiStatItem(_("Domains on AdLists"));
-      this._line2 = new Line();
+      if (
+        (this._version1 == 1 || this._version2 == 1) &&
+        this._showSensorData
+      ) {
+        this._line2 = new Line();
+        this._cpuUtilItem = new MultiStatItem(_("CPU"));
+        this._memoryUsageItem = new MultiStatItem(_("Memory Usage"));
+        this._temperatureItem = new MultiStatItem(_("Temperature"));
+      }
+      this._line3 = new Line();
       this._settingsItem = new TailItem();
-
       const statsBox = new St.BoxLayout({ vertical: true });
       this._menuButton.menu.box.add_child(statsBox);
 
@@ -80,7 +106,16 @@ export const MPihole = GObject.registerClass(
       statsBox.add_child(this._queriesBlockedItem);
       statsBox.add_child(this._percentageBlockedItem);
       statsBox.add_child(this._domainsOnAdlistsItem);
-      statsBox.add_child(this._line2);
+      if (
+        (this._version1 == 1 || this._version2 == 1) &&
+        this._showSensorData
+      ) {
+        statsBox.add_child(this._line2);
+        statsBox.add_child(this._cpuUtilItem);
+        statsBox.add_child(this._memoryUsageItem);
+        statsBox.add_child(this._temperatureItem);
+      }
+      statsBox.add_child(this._line3);
       statsBox.add_child(this._settingsItem);
 
       Main.panel.addToStatusArea(this._me.uuid, this._menuButton);
@@ -92,8 +127,20 @@ export const MPihole = GObject.registerClass(
         if (this._isRunning) {
           this._piholeClient1.destroy();
           this._piholeClient2.destroy();
-          this._piholeClient1 = new PiholeClient(this._url1, this._token1);
-          this._piholeClient2 = new PiholeClient(this._url2, this._token2);
+
+          // Index 0 represents v5.
+          if (this._version1 == 0) {
+            this._piholeClient1 = new PiholeClient(this._url1, this._token1);
+          } else {
+            this._piholeClient1 = new PiholeClient6(this._url1, this._token1);
+          }
+
+          if (this._version2 == 0) {
+            this._piholeClient2 = new PiholeClient(this._url2, this._token2);
+          } else {
+            this._piholeClient2 = new PiholeClient6(this._url2, this._token2);
+          }
+
           this._headerItem._button1.label = this._name1;
           this._headerItem._button2.label = this._name2;
           this._startUpdating();
@@ -129,6 +176,14 @@ export const MPihole = GObject.registerClass(
       this._queriesBlockedItem._label2.set_style_class_name(newLabelStyle);
       this._percentageBlockedItem._label2.set_style_class_name(newLabelStyle);
       this._domainsOnAdlistsItem._label2.set_style_class_name(newLabelStyle);
+      if (
+        (this._version1 == 1 || this._version2 == 1) &&
+        this._showSensorData
+      ) {
+        this._cpuUtilItem._label2.set_style_class_name(newLabelStyle);
+        this._memoryUsageItem._label2.set_style_class_name(newLabelStyle);
+        this._temperatureItem._label2.set_style_class_name(newLabelStyle);
+      }
     }
 
     _updateSecondInstance(newState) {
@@ -139,6 +194,14 @@ export const MPihole = GObject.registerClass(
       this._queriesBlockedItem._label3.set_style_class_name(newLabelStyle);
       this._percentageBlockedItem._label3.set_style_class_name(newLabelStyle);
       this._domainsOnAdlistsItem._label3.set_style_class_name(newLabelStyle);
+      if (
+        (this._version1 == 1 || this._version2 == 1) &&
+        this._showSensorData
+      ) {
+        this._cpuUtilItem._label3.set_style_class_name(newLabelStyle);
+        this._memoryUsageItem._label3.set_style_class_name(newLabelStyle);
+        this._temperatureItem._label3.set_style_class_name(newLabelStyle);
+      }
     }
 
     _updatePanelIcon() {
@@ -166,66 +229,78 @@ export const MPihole = GObject.registerClass(
 
     async _updateUI() {
       try {
-        const [summary1, summary2] = await Promise.all([
-          this._piholeClient1.fetchSummary(),
-          this._piholeClient2.fetchSummary(),
+        await Promise.all([
+          this._piholeClient1.fetchData(),
+          this._piholeClient2.fetchData(),
         ]);
-
-        if (!this._checkedUpdate || this._checkNewVersion) {
-          const [ver1, ver2] = await Promise.all([
-            this._piholeClient1.fetchVersion(),
-            this._piholeClient2.fetchVersion(),
-          ]);
-
-          if (this._checkNewVersion) {
-            const updateExistsForPi1 =
-              ver1.core_update || ver1.FTL_update || ver1.web_update;
-
-            if (updateExistsForPi1) {
-              this._showNotification(`Update available for ${this._name1}.`);
-            }
-
-            const updateExistsForPi2 =
-              ver2.core_update || ver2.FTL_update || ver2.web_update;
-
-            if (updateExistsForPi2) {
-              this._showNotification(`Update available for ${this._name2}.`);
-            }
-          }
-
-          // TODO: Fix repetiton.
-          // Make sure that the menu is there.
-          if (this._menuButton) {
-            this._settingsItem.text1 = ver1.core_current;
-            this._settingsItem.text2 = ver2.core_current;
-          }
-
-          this._checkedUpdate = true;
-        }
 
         // Make sure that the menu is there.
         if (!this._menuButton) return;
 
-        const state1 = summary1.status === "enabled";
-        const state2 = summary2.status === "enabled";
+        const data1 = this._piholeClient1.data;
+        const data2 = this._piholeClient2.data;
+
+        const state1 = data1.blocking === "enabled";
+        const state2 = data2.blocking === "enabled";
         this._headerItem.state1 = state1;
         this._headerItem.state2 = state2;
         this._updateFirstInstance(state1);
         this._updateSecondInstance(state2);
         this._updatePanelIcon();
 
-        this._totalQueriesItem.text1 = summary1.dns_queries_today;
-        this._queriesBlockedItem.text1 = summary1.ads_blocked_today;
-        this._percentageBlockedItem.text1 = summary1.ads_percentage_today + "%";
-        this._domainsOnAdlistsItem.text1 = summary1.domains_being_blocked;
+        this._totalQueriesItem.text1 = data1.dns_queries_today;
+        this._queriesBlockedItem.text1 = data1.ads_blocked_today;
+        this._percentageBlockedItem.text1 = data1.ads_percentage_today + "%";
+        this._domainsOnAdlistsItem.text1 = data1.domains_being_blocked;
 
-        this._totalQueriesItem.text2 = summary2.dns_queries_today;
-        this._queriesBlockedItem.text2 = summary2.ads_blocked_today;
-        this._percentageBlockedItem.text2 = summary2.ads_percentage_today + "%";
-        this._domainsOnAdlistsItem.text2 = summary2.domains_being_blocked;
-      } catch (err) {
-        console.log(err, "Error in _updateUI");
-      }
+        this._totalQueriesItem.text2 = data2.dns_queries_today;
+        this._queriesBlockedItem.text2 = data2.ads_blocked_today;
+        this._percentageBlockedItem.text2 = data2.ads_percentage_today + "%";
+        this._domainsOnAdlistsItem.text2 = data2.domains_being_blocked;
+
+        if (this._showSensorData) {
+          if (this._version1 == 1) {
+            this._cpuUtilItem.text1 = data1.cpu;
+            this._memoryUsageItem.text1 = data1.memory;
+            this._temperatureItem.text1 = data1.temp;
+          } else {
+            this._cpuUtilItem.text1 = "n/a";
+            this._memoryUsageItem.text1 = "n/a";
+            this._temperatureItem.text1 = "n/a";
+          }
+
+          if (this._version2 == 1) {
+            this._cpuUtilItem.text2 = data2.cpu;
+            this._memoryUsageItem.text2 = data2.memory;
+            this._temperatureItem.text2 = data2.temp;
+          } else {
+            this._cpuUtilItem.text2 = "n/a";
+            this._memoryUsageItem.text2 = "n/a";
+            this._temperatureItem.text2 = "n/a";
+          }
+        }
+
+        this._settingsItem.text1 = data1.version;
+        this._settingsItem.text2 = data2.version;
+
+        if (!this._checkedUpdate || this._checkNewVersion) {
+          if (this._checkNewVersion) {
+            const updateExistsForPi1 = data1.updateExists;
+
+            if (updateExistsForPi1) {
+              this._showNotification(`Update available for ${this._name1}.`);
+            }
+
+            const updateExistsForPi2 = data2.updateExists;
+
+            if (updateExistsForPi2) {
+              this._showNotification(`Update available for ${this._name2}.`);
+            }
+          }
+
+          this._checkedUpdate = true;
+        }
+      } catch (err) {}
     }
 
     _startUpdating() {

@@ -10,6 +10,9 @@
         <key name="instance1" type="s">
             <default>'Pi-hole #1'</default>
         </key>
+        <key name="version1" type="u">
+            <default>5</default>
+        </key>
         <key name="url2" type="s">
             <default>'http://pi.hole/admin/api.php'</default>
         </key>
@@ -18,6 +21,12 @@
         </key>
         <key name="instance2" type="s">
             <default>'Pi-hole #2'</default>
+        </key>
+        <key name="version2" type="u">
+            <default>5</default>
+        </key>
+        <key name="show-sensor-data" type="b">
+            <default>false</default>
         </key>
         <key name="multimode" type="b">
             <default>false</default>
