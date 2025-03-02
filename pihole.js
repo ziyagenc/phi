@@ -8,7 +8,12 @@ import * as MessageTray from "resource:///org/gnome/shell/ui/messageTray.js";
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
 
+// PiholeClient v5
 import { PiholeClient } from "./client.js";
+
+// PiholeClient v6
+import { PiholeClient6 } from "./client6.js";
+
 import { ItemContext, PrefsItem, StatsItem } from "./items.js";
 
 const PiholeMenuTypes = {
@@ -21,10 +26,10 @@ const ClientStatus = {
     "Error: Failed to get statistics.\nMake sure that Pi-hole is reachable."
   ),
   EMPTY_RESPONSE: _(
-    "Error: Invalid response.\nMake sure that API token is set correctly."
+    "Error: Invalid response.\nMake sure that API token or password is set correctly."
   ),
   NOT_INITIALIZED: _(
-    "API token is empty. If your Pi-hole is password\nprotected, please enter your API token in the settings\nto start monitoring."
+    "API token or password is empty. If your Pi-hole is password\nprotected, please enter your API token or password in the settings\nto start monitoring."
   ),
   NO_NETWORK: _(
     "Monitoring has been paused as\nthe computer is currently offline."
@@ -39,14 +44,18 @@ export const Pihole = GObject.registerClass(
   class Pihole extends GObject.Object {
     constructor(me, settings, command) {
       super();
-
       this._me = me;
       this._settings = settings;
 
       this._configure();
       this._makeMenu();
 
-      this._piholeClient = new PiholeClient(this._url, this._token);
+      if (this._version == 0) {
+        this._piholeClient = new PiholeClient(this._url, this._token);
+      } else {
+        this._piholeClient = new PiholeClient6(this._url, this._token);
+      }
+
       this._setHandlers();
 
       if (command === "start") {
@@ -62,8 +71,10 @@ export const Pihole = GObject.registerClass(
     _configure() {
       this._url = this._settings.get_string("url1");
       this._token = this._settings.get_string("token1");
+      this._version = this._settings.get_uint("version1");
       this._interval = this._settings.get_uint("interval");
       this._checkNewVersion = this._settings.get_boolean("check-new-version");
+      this._showSensorData = this._settings.get_boolean("show-sensor-data");
     }
 
     _makeMenu() {
@@ -112,8 +123,23 @@ export const Pihole = GObject.registerClass(
       this._percentageBlockedItem = new StatsItem(_("Percentage Blocked"));
       this._menuButton.menu.addMenuItem(this._percentageBlockedItem);
 
-      this._domainsOnAdlistsItem = new StatsItem(_("Domains on AdLists"));
+      this._domainsOnAdlistsItem = new StatsItem(_("Domains on Lists"));
       this._menuButton.menu.addMenuItem(this._domainsOnAdlistsItem);
+
+      // If this is Pi-hole v6
+      if (this._version == 1 && this._showSensorData) {
+        this._sensorsSeparator = new PopupMenu.PopupSeparatorMenuItem();
+        this._menuButton.menu.addMenuItem(this._sensorsSeparator);
+
+        this._cpuUtilItem = new StatsItem(_("CPU"));
+        this._menuButton.menu.addMenuItem(this._cpuUtilItem);
+
+        this._memoryUsageItem = new StatsItem(_("Memory Usage"));
+        this._menuButton.menu.addMenuItem(this._memoryUsageItem);
+
+        this._temperatureItem = new StatsItem(_("Temperature"));
+        this._menuButton.menu.addMenuItem(this._temperatureItem);
+      }
 
       this._prefSeparator = new PopupMenu.PopupSeparatorMenuItem();
       this._menuButton.menu.addMenuItem(this._prefSeparator);
@@ -138,7 +164,11 @@ export const Pihole = GObject.registerClass(
         this._configure();
         if (this._isRunning) {
           this._piholeClient.destroy();
-          this._piholeClient = new PiholeClient(this._url, this._token);
+          if (this._version == 0) {
+            this._piholeClient = new PiholeClient(this._url, this._token);
+          } else {
+            this._piholeClient = new PiholeClient6(this._url, this._token);
+          }
           this._startUpdating();
         }
       });
@@ -146,7 +176,8 @@ export const Pihole = GObject.registerClass(
 
     async _updateUI() {
       try {
-        const stats = await this._piholeClient.fetchSummary();
+        await this._piholeClient.fetchData();
+        const stats = this._piholeClient.data;
 
         // Make sure that the menu is there.
         if (!this._menuButton) return;
@@ -156,16 +187,15 @@ export const Pihole = GObject.registerClass(
           if (this._token === "") {
             this._showErrorMenu(ClientStatus.NOT_INITIALIZED);
           } else {
-            // API key is entered, but we still got empty response.
-            // Most likely the key is not correct.
+            // API key or password is entered, but we still got empty response.
+            // Most likely the key or the password is not correct.
             this._showErrorMenu(ClientStatus.EMPTY_RESPONSE);
           }
           return;
         }
 
         if (this._settingsItem.text === "") {
-          const version = await this._piholeClient.fetchVersion();
-          this._updateVersionLabel(version);
+          this._updateVersionLabel(stats);
         }
 
         this._showMainMenu(stats);
@@ -203,15 +233,21 @@ export const Pihole = GObject.registerClass(
     }
 
     _showMainMenu(stats) {
-      const state = stats.status === "enabled";
+      const state = stats.blocking === "enabled";
 
       this._updateStatusTextAndIcon(state);
 
       this._toggleItem.setToggleState(state);
       this._totalQueriesItem.text = stats.dns_queries_today;
       this._queriesBlockedItem.text = stats.ads_blocked_today;
-      this._percentageBlockedItem.text = stats.ads_percentage_today + "%";
+      this._percentageBlockedItem.text = stats.ads_percentage_today + " %";
       this._domainsOnAdlistsItem.text = stats.domains_being_blocked;
+
+      if (this._version == 1 && this._showSensorData) {
+        this._cpuUtilItem.text = stats.cpu + " %";
+        this._memoryUsageItem.text = stats.memory + " %";
+        this._temperatureItem.text = stats.temp;
+      }
 
       if (this._currentMenu !== PiholeMenuTypes.MAINMENU) {
         this._menuButton.menu.box.get_children().forEach((item) => {
@@ -237,16 +273,13 @@ export const Pihole = GObject.registerClass(
     }
 
     _updateVersionLabel(json) {
-      this._settingsItem.text = `Pi-hole ${json.core_current}`;
+      this._settingsItem.text = `Pi-hole ${json.version}`;
 
       if (!this._checkNewVersion) {
         return;
       }
 
-      const updateExists =
-        json.core_update || json.FTL_update || json.web_update;
-
-      if (updateExists) {
+      if (json.updateExists) {
         this._showNotification("Update available for Pi-hole.");
         this._settingsItem.text = _("Update available!");
       }

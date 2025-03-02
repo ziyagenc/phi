@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk" version="4.0" />
+  <requires lib="gtk" version="4.0"/>
   <object class="AdwPreferencesPage" id="about">
     <property name="name">about</property>
-    <property name="title" translatable="true">About</property>
+    <property name="title" translatable="yes">About</property>
     <property name="icon-name">help-about-symbolic</property>
     <child>
       <object class="AdwClamp" id="clamp">
@@ -17,7 +17,7 @@
                 <property name="pixel-size">128</property>
                 <property name="margin-bottom">18</property>
                 <style>
-                  <class name="icon-dropshadow" />
+                  <class name="icon-dropshadow"/>
                 </style>
               </object>
             </child>
@@ -26,7 +26,7 @@
                 <property name="label">Phi: Pi-hole Indicator</property>
                 <property name="margin-bottom">6</property>
                 <style>
-                  <class name="title-1" />
+                  <class name="title-1"/>
                 </style>
               </object>
             </child>
@@ -42,9 +42,9 @@
                 <property name="margin-bottom">24</property>
                 <child>
                   <object class="GtkLabel">
-                    <property name="label">v1.8</property>
+                    <property name="label">v2.0</property>
                     <style>
-                      <class name="title-4" />
+                      <class name="title-4"/>
                     </style>
                   </object>
                 </child>
@@ -58,11 +58,11 @@
                   <object class="GtkListBox">
                     <property name="selection-mode">0</property>
                     <style>
-                      <class name="boxed-list" />
+                      <class name="boxed-list"/>
                     </style>
                     <child>
                       <object class="AdwActionRow" id="action_issue">
-                        <property name="title" translatable="true">Report an Issue</property>
+                        <property name="title" translatable="yes">Report an Issue</property>
                         <property name="activatable-widget">icon_issue</property>
                         <child type="suffix">
                           <object class="GtkImage" id="icon_issue">
@@ -78,11 +78,11 @@
                   <object class="GtkListBox">
                     <property name="selection-mode">0</property>
                     <style>
-                      <class name="boxed-list" />
+                      <class name="boxed-list"/>
                     </style>
                     <child>
                       <object class="AdwActionRow" id="action_whats_new">
-                        <property name="title" translatable="true">What's New</property>
+                        <property name="title" translatable="yes">What's New</property>
                         <property name="activatable-widget">icon_changes</property>
                         <child type="suffix">
                           <object class="GtkImage" id="icon_changes">
@@ -94,7 +94,7 @@
                     </child>
                     <child>
                       <object class="AdwActionRow" id="action_legal">
-                        <property name="title" translatable="true">Legal</property>
+                        <property name="title" translatable="yes">Legal</property>
                         <property name="activatable-widget">icon_legal</property>
                         <child type="suffix">
                           <object class="GtkImage" id="icon_legal">
@@ -114,7 +114,7 @@
     </child>
   </object>
   <object class="AdwStatusPage" id="page_whats_new">
-    <property name="title" translatable="true">What's New</property>
+    <property name="title" translatable="yes">What's New</property>
     <child>
       <object class="AdwClamp">
         <property name="maximum-size">340</property>
@@ -124,16 +124,31 @@
             <property name="valign">1</property>
             <child>
               <object class="GtkLabel">
-                <property name="label">v1.8</property>
+                <property name="label">v2.0</property>
                 <property name="halign">1</property>
                 <style>
-                  <class name="title-4" />
+                  <class name="title-4"/>
                 </style>
               </object>
             </child>
             <child>
               <object class="GtkLabel">
-                <property name="label">- Add option to disable checking Pi-hole software updates.</property>
+                <property name="halign">1</property>
+                <property name="label">- Support Pi-hole v6.</property>
+                <property name="wrap">true</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="halign">1</property>
+                <property name="label">- Fetch sensor data: CPU, memory usage and temperature.</property>
+                <property name="wrap">true</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="halign">1</property>
+                <property name="label">- Use appropriate widgets for password/token entry.</property>
                 <property name="margin-bottom">12</property>
                 <property name="wrap">true</property>
               </object>
@@ -143,11 +158,11 @@
                 <property name="selection-mode">0</property>
                 <property name="margin-bottom">24</property>
                 <style>
-                  <class name="boxed-list" />
+                  <class name="boxed-list"/>
                 </style>
                 <child>
                   <object class="AdwActionRow" id="action_changelog">
-                    <property name="title" translatable="true">Changelog</property>
+                    <property name="title" translatable="yes">Changelog</property>
                     <property name="activatable-widget">icon_changelog</property>
                     <child type="suffix">
                       <object class="GtkImage" id="icon_changelog">
@@ -161,11 +176,11 @@
             </child>
             <child>
               <object class="GtkButton" id="button_go_back">
-                <property name="label" translatable="true">Go back</property>
+                <property name="label" translatable="yes">Go back</property>
                 <property name="halign">3</property>
                 <style>
-                  <class name="suggested-action" />
-                  <class name="pill" />
+                  <class name="suggested-action"/>
+                  <class name="pill"/>
                 </style>
               </object>
             </child>
@@ -175,7 +190,7 @@
     </child>
   </object>
   <object class="AdwStatusPage" id="page_legal">
-    <property name="title" translatable="true">Legal</property>
+    <property name="title" translatable="yes">Legal</property>
     <child>
       <object class="AdwClamp">
         <property name="maximum-size">340</property>
@@ -185,7 +200,7 @@
             <property name="valign">1</property>
             <child>
               <object class="GtkLabel">
-                <property name="label">© 2024 Ziya Genç
+                <property name="label">© 2025 Ziya Genç
 
 This application comes with absolutely no warranty. See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Public License, version 3 only&lt;/a&gt; for details.</property>
                 <property name="margin-bottom">12</property>
@@ -195,11 +210,11 @@ This application comes with absolutely no warranty. See the &lt;a href="https://
             </child>
             <child>
               <object class="GtkButton" id="button_go_back2">
-                <property name="label" translatable="true">Go back</property>
+                <property name="label" translatable="yes">Go back</property>
                 <property name="halign">3</property>
                 <style>
-                  <class name="suggested-action" />
-                  <class name="pill" />
+                  <class name="suggested-action"/>
+                  <class name="pill"/>
                 </style>
               </object>
             </child>

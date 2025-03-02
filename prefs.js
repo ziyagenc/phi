@@ -1,6 +1,6 @@
 import Adw from "gi://Adw";
 import Gio from "gi://Gio";
-import Gtk from "gi://Gtk";
+import Gtk from "gi://Gtk?version=4.0";
 
 import {
   ExtensionPreferences,
@@ -39,9 +39,11 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     settings.reset("url1");
     settings.reset("token1");
     settings.reset("instance1");
+    settings.reset("version1");
     settings.reset("url2");
     settings.reset("token2");
     settings.reset("instance2");
+    settings.reset("version2");
     settings.reset("multimode");
     settings.reset("interval");
     settings.reset("hideui");
@@ -60,9 +62,12 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     const url_entry1 = builder.get_object("url_entry1");
     const token_entry1 = builder.get_object("token_entry1");
     const instance_name1 = builder.get_object("instance_name1");
+    const version_row1 = builder.get_object("version_row1");
     const url_entry2 = builder.get_object("url_entry2");
     const token_entry2 = builder.get_object("token_entry2");
     const instance_name2 = builder.get_object("instance_name2");
+    const version_row2 = builder.get_object("version_row2");
+    const show_sensor_data_switch = builder.get_object("sensor_switch");
     const multimode_switch = builder.get_object("multimode_switch");
     const interval_spin = builder.get_object("interval_spin");
     const hideui_switch = builder.get_object("hideui_switch");
@@ -104,6 +109,12 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
       Gio.SettingsBindFlags.DEFAULT
     );
     window._settings.bind(
+      "version1",
+      version_row1,
+      "selected",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    window._settings.bind(
       "url2",
       url_entry2,
       "text",
@@ -119,6 +130,18 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
       "instance2",
       instance_name2,
       "text",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    window._settings.bind(
+      "version2",
+      version_row2,
+      "selected",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    window._settings.bind(
+      "show-sensor-data",
+      show_sensor_data_switch,
+      "active",
       Gio.SettingsBindFlags.DEFAULT
     );
     window._settings.bind(
@@ -158,6 +181,24 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
       Gio.SettingsBindFlags.DEFAULT
     );
 
+    version_row1.connect("notify::selected-item", () => {
+      const selected_item = version_row1.selected_item.get_string();
+      if (selected_item === "6") {
+        token_entry1.set_title("Password");
+      } else {
+        token_entry1.set_title("API Token");
+      }
+    });
+
+    version_row2.connect("notify::selected-item", () => {
+      const selected_item = version_row2.selected_item.get_string();
+      if (selected_item === "6") {
+        token_entry2.set_title("Password");
+      } else {
+        token_entry2.set_title("API Token");
+      }
+    });
+
     check_network_switch.connect("notify::active", () => {
       if (check_network_switch.active) {
         this.setNetworkList(network_entry).catch(console.error);
@@ -179,7 +220,9 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     });
 
     action_changelog.connect("activated", () => {
-      new Gtk.UriLauncher({ uri: "https://github.com/ziyagenc/phi#changelog" })
+      new Gtk.UriLauncher({
+        uri: "https://github.com/ziyagenc/phi/blob/main/CHANGELOG.md",
+      })
         .launch(window, null)
         .catch(console.error);
     });

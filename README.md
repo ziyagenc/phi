@@ -1,7 +1,7 @@
 # Phi: Pi-hole Indicator for GNOME Shell
 
 [<img src="https://raw.githubusercontent.com/ziyagenc/phi/main/img/get-it-on-gnome-extensions.png" height="150" align="right">](https://extensions.gnome.org/extension/6400/phi-pi-hole-indicator/)
-Quickly access your beloved Pi-hole from GNOME Shell.
+Quickly access your beloved Pi-hole from GNOME Shell. Works with Pi-hole v5 and v6.
 
 Phi provides the following features:
 
@@ -20,9 +20,11 @@ You can install Phi via official page of [GNOME Shell Extensions](https://extens
 
 ## Changelog
 
-### v1.8
+### v2.0
 
-- Add option to disable checking Pi-hole software updates.
+- Support Pi-hole v6. Fixes [#10].
+- Fetch sensor data: CPU, memory usage and temperature. This feature requires Pi-hole v6. Fixes [#9].
+- Use appropriate widgets for password/token entry.
 
 See [CHANGELOG.md](CHANGELOG.md) for complete changelogs.
 
