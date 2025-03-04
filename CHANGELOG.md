@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.1
+
+- Fix check new version logic.
+
 ## v2.0
 
 - Support Pi-hole v6. Fixes [#10].

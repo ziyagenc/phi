@@ -42,7 +42,7 @@
                 <property name="margin-bottom">24</property>
                 <child>
                   <object class="GtkLabel">
-                    <property name="label">v2.0</property>
+                    <property name="label">v2.1</property>
                     <style>
                       <class name="title-4"/>
                     </style>
@@ -124,7 +124,7 @@
             <property name="valign">1</property>
             <child>
               <object class="GtkLabel">
-                <property name="label">v2.0</property>
+                <property name="label">v2.1</property>
                 <property name="halign">1</property>
                 <style>
                   <class name="title-4"/>
@@ -134,7 +134,7 @@
             <child>
               <object class="GtkLabel">
                 <property name="halign">1</property>
-                <property name="label">- Support Pi-hole v6.</property>
+                <property name="label">- Fix check new version logic.</property>
                 <property name="wrap">true</property>
               </object>
             </child>
