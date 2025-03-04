@@ -24,7 +24,7 @@ export const PiholeClient6 = GObject.registerClass(
 
       this._session = new Soup.Session();
       // Leave a whitespace to be followed by libsoup version
-      this._session.set_user_agent(`Phi/2.0 `);
+      this._session.set_user_agent(`Phi/2.1 `);
       this._encoder = new TextEncoder();
       this._decoder = new TextDecoder();
 
