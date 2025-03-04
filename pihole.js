@@ -57,6 +57,7 @@ export const Pihole = GObject.registerClass(
       }
 
       this._setHandlers();
+      this._notificationSource = null;
 
       if (command === "start") {
         this._startUpdating();
@@ -257,19 +258,31 @@ export const Pihole = GObject.registerClass(
       }
     }
 
+    _getNotificationSource() {
+      if (!this._notificationSource) {
+        this._notificationSource = new MessageTray.Source({
+          title: "Phi",
+          icon: this._menuButton.icon.gicon,
+        });
+
+        this._notificationSource.connect("destroy", (_source) => {
+          this._notificationSource = null;
+        });
+
+        Main.messageTray.add(this._notificationSource);
+      }
+
+      return this._notificationSource;
+    }
+
     _showNotification(message) {
-      const source = new MessageTray.Source({
-        title: "Phi",
-        icon: this._menuButton.icon.gicon,
-      });
       const notification = new MessageTray.Notification({
-        source,
+        source: this._getNotificationSource(),
         title: message,
         isTransient: true,
       });
 
-      Main.messageTray.add(source);
-      source.addNotification(notification);
+      this._getNotificationSource().addNotification(notification);
     }
 
     _updateVersionLabel(json) {
@@ -304,6 +317,9 @@ export const Pihole = GObject.registerClass(
       if (this._fetchTimeoutId) {
         GLib.Source.remove(this._fetchTimeoutId);
       }
+
+      this._notificationSource?.destroy();
+      this._notificationSource = null;
 
       this._piholeClient.destroy();
       this._piholeClient = null;

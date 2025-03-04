@@ -43,6 +43,7 @@ export const MPihole = GObject.registerClass(
 
       this._setHandlers();
 
+      this._notificationSource = null;
       this._checkedUpdate = false;
 
       if (command === "start") {
@@ -212,19 +213,31 @@ export const MPihole = GObject.registerClass(
       this._menuButton.icon.set_style_class_name(iconStyle);
     }
 
+    _getNotificationSource() {
+      if (!this._notificationSource) {
+        this._notificationSource = new MessageTray.Source({
+          title: "Phi",
+          icon: this._menuButton.icon.gicon,
+        });
+
+        this._notificationSource.connect("destroy", (_source) => {
+          this._notificationSource = null;
+        });
+
+        Main.messageTray.add(this._notificationSource);
+      }
+
+      return this._notificationSource;
+    }
+
     _showNotification(message) {
-      const source = new MessageTray.Source({
-        title: "Phi",
-        icon: this._menuButton.icon.gicon,
-      });
       const notification = new MessageTray.Notification({
-        source,
+        source: this._getNotificationSource(),
         title: message,
         isTransient: true,
       });
 
-      Main.messageTray.add(source);
-      source.addNotification(notification);
+      this._getNotificationSource().addNotification(notification);
     }
 
     async _updateUI() {
@@ -283,19 +296,13 @@ export const MPihole = GObject.registerClass(
         this._settingsItem.text1 = data1.version;
         this._settingsItem.text2 = data2.version;
 
-        if (!this._checkedUpdate || this._checkNewVersion) {
-          if (this._checkNewVersion) {
-            const updateExistsForPi1 = data1.updateExists;
+        if (this._checkNewVersion && !this._checkedUpdate) {
+          if (data1.updateExists) {
+            this._showNotification(`Update available for ${this._name1}.`);
+          }
 
-            if (updateExistsForPi1) {
-              this._showNotification(`Update available for ${this._name1}.`);
-            }
-
-            const updateExistsForPi2 = data2.updateExists;
-
-            if (updateExistsForPi2) {
-              this._showNotification(`Update available for ${this._name2}.`);
-            }
+          if (data2.updateExists) {
+            this._showNotification(`Update available for ${this._name2}.`);
           }
 
           this._checkedUpdate = true;
@@ -327,6 +334,9 @@ export const MPihole = GObject.registerClass(
       if (this._fetchTimeoutId) {
         GLib.Source.remove(this._fetchTimeoutId);
       }
+
+      this._notificationSource?.destroy();
+      this._notificationSource = null;
 
       this._piholeClient1.destroy();
       this._piholeClient1 = null;

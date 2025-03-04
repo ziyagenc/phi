@@ -201,7 +201,7 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
 
     check_network_switch.connect("notify::active", () => {
       if (check_network_switch.active) {
-        this.setNetworkList(network_entry).catch(console.error);
+        this.setNetworkList(network_entry).catch();
       }
     });
 
@@ -212,7 +212,7 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     action_issue.connect("activated", () => {
       new Gtk.UriLauncher({ uri: "https://github.com/ziyagenc/phi/issues" })
         .launch(window, null)
-        .catch(console.error);
+        .catch();
     });
 
     action_whats_new.connect("activated", () => {
@@ -224,7 +224,7 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
         uri: "https://github.com/ziyagenc/phi/blob/main/CHANGELOG.md",
       })
         .launch(window, null)
-        .catch(console.error);
+        .catch();
     });
 
     action_legal.connect("activated", () => {

@@ -20,7 +20,7 @@ export const PiholeIndicator = GObject.registerClass(
 
       this._configure();
       this._setHandlers();
-      this._start().catch(console.error);
+      this._start().catch();
     }
 
     _configure() {
@@ -34,13 +34,13 @@ export const PiholeIndicator = GObject.registerClass(
       this._networkHandlerId = this._network_monitor.connect(
         "network-changed",
         () => {
-          this._start().catch(console.error);
+          this._start().catch();
         }
       );
 
       this._settingsHandlerId = this._settings.connect("changed", () => {
         this._configure();
-        this._start().catch(console.error);
+        this._start().catch();
       });
     }
 
