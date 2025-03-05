@@ -15,6 +15,13 @@ export const PiholeClient6 = GObject.registerClass(
       super();
       this._url = url;
       this._password = password;
+
+      if (this._password.length === 0) {
+        this._passwordSet = false;
+      } else {
+        this._passwordSet = true;
+      }
+
       this._auth_url = this._url + "/auth";
       this._stats_url = this._url + "/stats/summary";
       this._version_url = this._url + "/info/version";
@@ -24,7 +31,7 @@ export const PiholeClient6 = GObject.registerClass(
 
       this._session = new Soup.Session();
       // Leave a whitespace to be followed by libsoup version
-      this._session.set_user_agent(`Phi/2.1 `);
+      this._session.set_user_agent(`Phi/2.2 `);
       this._encoder = new TextEncoder();
       this._decoder = new TextDecoder();
 
@@ -46,7 +53,9 @@ export const PiholeClient6 = GObject.registerClass(
       this.data.memory = "Initializing";
       this.data.temp = "Initializing";
 
-      this._startAuthenticate();
+      if (this._passwordSet) {
+        this._startAuthenticate();
+      }
     }
 
     async _readAsString(input_stream) {
@@ -127,10 +136,13 @@ export const PiholeClient6 = GObject.registerClass(
 
     async _fetchUrl(url) {
       const message = Soup.Message.new("GET", url);
-      message.set_request_body_from_bytes(
-        "application/json",
-        this._encoder.encode(`{"sid": "${this._sid}"}`)
-      );
+
+      if (this._passwordSet) {
+        message.set_request_body_from_bytes(
+          "application/json",
+          this._encoder.encode(`{"sid": "${this._sid}"}`)
+        );
+      }
 
       message.connect(
         "accept-certificate",
@@ -221,10 +233,14 @@ export const PiholeClient6 = GObject.registerClass(
 
     togglePihole(state) {
       const message = Soup.Message.new("POST", this._blocking_url);
-      message.set_request_body_from_bytes(
-        "application/json",
-        this._encoder.encode(`{"sid": "${this._sid}", "blocking": ${state}}`)
-      );
+
+      if (this._passwordSet) {
+        message.set_request_body_from_bytes(
+          "application/json",
+          this._encoder.encode(`{"sid": "${this._sid}", "blocking": ${state}}`)
+        );
+      }
+
       message.connect(
         "accept-certificate",
         (msg, tls_peer_certificate, tls_peer_errors) => {
@@ -244,7 +260,9 @@ export const PiholeClient6 = GObject.registerClass(
     }
 
     destroy() {
-      this._delete_session();
+      if (this._passwordSet) {
+        this._delete_session();
+      }
 
       if (this._authTimeoutId) {
         GLib.Source.remove(this._authTimeoutId);

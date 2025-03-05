@@ -22,13 +22,7 @@ You can install Phi via official page of [GNOME Shell Extensions](https://extens
 
 ### v2.1
 
-- Fix check new version logic.
-
-### v2.0
-
-- Support Pi-hole v6. Fixes [#10].
-- Fetch sensor data: CPU, memory usage and temperature. This feature requires Pi-hole v6. Fixes [#9].
-- Use appropriate widgets for password/token entry.
+- Handle connections to a Pi-hole v6 with blank password.
 
 See [CHANGELOG.md](CHANGELOG.md) for complete changelogs.
 

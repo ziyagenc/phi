@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.2
+
+- Handle connections to a Pi-hole v6 with blank password.
+
 ## v2.1
 
 - Fix check new version logic.
