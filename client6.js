@@ -239,6 +239,11 @@ export const PiholeClient6 = GObject.registerClass(
           "application/json",
           this._encoder.encode(`{"sid": "${this._sid}", "blocking": ${state}}`)
         );
+      } else {
+        message.set_request_body_from_bytes(
+          "application/json",
+          this._encoder.encode(`{"blocking": ${state}}`)
+        );
       }
 
       message.connect(
