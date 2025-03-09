@@ -160,19 +160,6 @@ export const Pihole = GObject.registerClass(
       this._settingsItem.connect("activate", () => {
         this._me.openPreferences();
       });
-
-      this._settingsHandlerId = this._settings.connect("changed", () => {
-        this._configure();
-        if (this._isRunning) {
-          this._piholeClient.destroy();
-          if (this._version == 0) {
-            this._piholeClient = new PiholeClient(this._url, this._token);
-          } else {
-            this._piholeClient = new PiholeClient6(this._url, this._token);
-          }
-          this._startUpdating();
-        }
-      });
     }
 
     async _updateUI() {
@@ -311,12 +298,11 @@ export const Pihole = GObject.registerClass(
     }
 
     destroy() {
-      this._settings.disconnect(this._settingsHandlerId);
-      this._settings = null;
-
       if (this._fetchTimeoutId) {
         GLib.Source.remove(this._fetchTimeoutId);
       }
+
+      this._settings = null;
 
       this._notificationSource?.destroy();
       this._notificationSource = null;

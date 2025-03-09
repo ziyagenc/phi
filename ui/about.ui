@@ -42,7 +42,7 @@
                 <property name="margin-bottom">24</property>
                 <child>
                   <object class="GtkLabel">
-                    <property name="label">v2.2</property>
+                    <property name="label">v2.3</property>
                     <style>
                       <class name="title-4"/>
                     </style>
@@ -124,7 +124,7 @@
             <property name="valign">1</property>
             <child>
               <object class="GtkLabel">
-                <property name="label">v2.2</property>
+                <property name="label">v2.3</property>
                 <property name="halign">1</property>
                 <style>
                   <class name="title-4"/>
@@ -134,7 +134,7 @@
             <child>
               <object class="GtkLabel">
                 <property name="halign">1</property>
-                <property name="label">- Handle connections to a Pi-hole v6 with blank password.</property>
+                <property name="label">- Make authentication async.</property>
                 <property name="wrap">true</property>
               </object>
             </child>

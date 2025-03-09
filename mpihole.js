@@ -123,31 +123,6 @@ export const MPihole = GObject.registerClass(
     }
 
     _setHandlers() {
-      this._settingsHandlerId = this._settings.connect("changed", () => {
-        this._configure();
-        if (this._isRunning) {
-          this._piholeClient1.destroy();
-          this._piholeClient2.destroy();
-
-          // Index 0 represents v5.
-          if (this._version1 == 0) {
-            this._piholeClient1 = new PiholeClient(this._url1, this._token1);
-          } else {
-            this._piholeClient1 = new PiholeClient6(this._url1, this._token1);
-          }
-
-          if (this._version2 == 0) {
-            this._piholeClient2 = new PiholeClient(this._url2, this._token2);
-          } else {
-            this._piholeClient2 = new PiholeClient6(this._url2, this._token2);
-          }
-
-          this._headerItem._button1.label = this._name1;
-          this._headerItem._button2.label = this._name2;
-          this._startUpdating();
-        }
-      });
-
       this._headerItem._button1.connect("clicked", () => {
         const newState = !this._headerItem.state1;
         this._piholeClient1.togglePihole(newState);
@@ -241,77 +216,75 @@ export const MPihole = GObject.registerClass(
     }
 
     async _updateUI() {
-      try {
-        await Promise.all([
-          this._piholeClient1.fetchData(),
-          this._piholeClient2.fetchData(),
-        ]);
+      await Promise.all([
+        this._piholeClient1.fetchData(),
+        this._piholeClient2.fetchData(),
+      ]);
 
-        // Make sure that the menu is there.
-        if (!this._menuButton) return;
+      // Make sure that the menu is there.
+      if (!this._menuButton) return;
 
-        const data1 = this._piholeClient1.data;
-        const data2 = this._piholeClient2.data;
+      const data1 = this._piholeClient1.data;
+      const data2 = this._piholeClient2.data;
 
-        const state1 = data1.blocking === "enabled";
-        const state2 = data2.blocking === "enabled";
-        this._headerItem.state1 = state1;
-        this._headerItem.state2 = state2;
-        this._updateFirstInstance(state1);
-        this._updateSecondInstance(state2);
-        this._updatePanelIcon();
+      const state1 = data1.blocking === "enabled";
+      const state2 = data2.blocking === "enabled";
+      this._headerItem.state1 = state1;
+      this._headerItem.state2 = state2;
+      this._updateFirstInstance(state1);
+      this._updateSecondInstance(state2);
+      this._updatePanelIcon();
 
-        this._totalQueriesItem.text1 = data1.dns_queries_today;
-        this._queriesBlockedItem.text1 = data1.ads_blocked_today;
-        this._percentageBlockedItem.text1 = data1.ads_percentage_today + "%";
-        this._domainsOnAdlistsItem.text1 = data1.domains_being_blocked;
+      this._totalQueriesItem.text1 = data1.dns_queries_today;
+      this._queriesBlockedItem.text1 = data1.ads_blocked_today;
+      this._percentageBlockedItem.text1 = data1.ads_percentage_today + "%";
+      this._domainsOnAdlistsItem.text1 = data1.domains_being_blocked;
 
-        this._totalQueriesItem.text2 = data2.dns_queries_today;
-        this._queriesBlockedItem.text2 = data2.ads_blocked_today;
-        this._percentageBlockedItem.text2 = data2.ads_percentage_today + "%";
-        this._domainsOnAdlistsItem.text2 = data2.domains_being_blocked;
+      this._totalQueriesItem.text2 = data2.dns_queries_today;
+      this._queriesBlockedItem.text2 = data2.ads_blocked_today;
+      this._percentageBlockedItem.text2 = data2.ads_percentage_today + "%";
+      this._domainsOnAdlistsItem.text2 = data2.domains_being_blocked;
 
-        if (this._showSensorData) {
-          if (this._version1 == 1) {
-            this._cpuUtilItem.text1 = data1.cpu;
-            this._memoryUsageItem.text1 = data1.memory;
-            this._temperatureItem.text1 = data1.temp;
-          } else {
-            this._cpuUtilItem.text1 = "n/a";
-            this._memoryUsageItem.text1 = "n/a";
-            this._temperatureItem.text1 = "n/a";
-          }
-
-          if (this._version2 == 1) {
-            this._cpuUtilItem.text2 = data2.cpu;
-            this._memoryUsageItem.text2 = data2.memory;
-            this._temperatureItem.text2 = data2.temp;
-          } else {
-            this._cpuUtilItem.text2 = "n/a";
-            this._memoryUsageItem.text2 = "n/a";
-            this._temperatureItem.text2 = "n/a";
-          }
+      if (this._showSensorData) {
+        if (this._version1 == 1) {
+          this._cpuUtilItem.text1 = data1.cpu;
+          this._memoryUsageItem.text1 = data1.memory;
+          this._temperatureItem.text1 = data1.temp;
+        } else {
+          this._cpuUtilItem.text1 = "n/a";
+          this._memoryUsageItem.text1 = "n/a";
+          this._temperatureItem.text1 = "n/a";
         }
 
-        this._settingsItem.text1 = data1.version;
-        this._settingsItem.text2 = data2.version;
-
-        if (this._checkNewVersion && !this._checkedUpdate) {
-          if (data1.updateExists) {
-            this._showNotification(`Update available for ${this._name1}.`);
-          }
-
-          if (data2.updateExists) {
-            this._showNotification(`Update available for ${this._name2}.`);
-          }
-
-          this._checkedUpdate = true;
+        if (this._version2 == 1) {
+          this._cpuUtilItem.text2 = data2.cpu;
+          this._memoryUsageItem.text2 = data2.memory;
+          this._temperatureItem.text2 = data2.temp;
+        } else {
+          this._cpuUtilItem.text2 = "n/a";
+          this._memoryUsageItem.text2 = "n/a";
+          this._temperatureItem.text2 = "n/a";
         }
-      } catch (err) {}
+      }
+
+      this._settingsItem.text1 = data1.version;
+      this._settingsItem.text2 = data2.version;
+
+      if (this._checkNewVersion && !this._checkedUpdate) {
+        if (data1.updateExists) {
+          this._showNotification(`Update available for ${this._name1}.`);
+        }
+
+        if (data2.updateExists) {
+          this._showNotification(`Update available for ${this._name2}.`);
+        }
+
+        this._checkedUpdate = true;
+      }
     }
 
     _startUpdating() {
-      this._updateUI().catch();
+      this._updateUI();
 
       if (this._fetchTimeoutId) {
         GLib.Source.remove(this._fetchTimeoutId);
@@ -321,19 +294,18 @@ export const MPihole = GObject.registerClass(
         GLib.PRIORITY_DEFAULT,
         this._interval,
         () => {
-          this._updateUI().catch();
+          this._updateUI();
           return GLib.SOURCE_CONTINUE;
         }
       );
     }
 
     destroy() {
-      this._settings.disconnect(this._settingsHandlerId);
-      this._settings = null;
-
       if (this._fetchTimeoutId) {
         GLib.Source.remove(this._fetchTimeoutId);
       }
+
+      this._settings = null;
 
       this._notificationSource?.destroy();
       this._notificationSource = null;

@@ -3,6 +3,11 @@ import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 import Soup from "gi://Soup?version=3.0";
 
+Gio._promisify(
+  Gio.InputStream.prototype,
+  "read_bytes_async",
+  "read_bytes_finish"
+);
 Gio._promisify(Soup.Session.prototype, "send_async", "send_finish");
 Gio._promisify(Gio.OutputStream.prototype, "splice_async", "splice_finish");
 
@@ -31,14 +36,12 @@ export const PiholeClient6 = GObject.registerClass(
 
       this._session = new Soup.Session();
       // Leave a whitespace to be followed by libsoup version
-      this._session.set_user_agent(`Phi/2.2 `);
+      this._session.set_user_agent(`Phi/2.3 `);
       this._encoder = new TextEncoder();
       this._decoder = new TextDecoder();
 
       // Session identifier
       this._sid = "";
-      // Validity of the sid in seconds, default value is 300.
-      this._validity = 300;
 
       this.data = {};
       this.data.dns_queries_today = "Initializing";
@@ -52,10 +55,6 @@ export const PiholeClient6 = GObject.registerClass(
       this.data.cpu = "Initializing";
       this.data.memory = "Initializing";
       this.data.temp = "Initializing";
-
-      if (this._passwordSet) {
-        this._startAuthenticate();
-      }
     }
 
     async _readAsString(input_stream) {
@@ -73,32 +72,14 @@ export const PiholeClient6 = GObject.registerClass(
       return this._decoder.decode(bytes.toArray());
     }
 
-    _startAuthenticate() {
-      this._authenticate();
-
-      if (this._authTimeoutId) {
-        GLib.Source.remove(this._authTimeoutId);
-      }
-
-      this._authTimeoutId = GLib.timeout_add_seconds(
-        GLib.PRIORITY_DEFAULT,
-        // Update again 10 seconds before the timeout.
-        // TODO: If validity is less than 10, this causes crash.
-        this._validity - 10,
-        () => {
-          this._delete_session();
-          this._authenticate();
-          return GLib.SOURCE_CONTINUE;
-        }
-      );
-    }
-
-    _authenticate() {
+    async _authenticate() {
       const message = Soup.Message.new("POST", this._auth_url);
+
       message.set_request_body_from_bytes(
         "application/json",
         this._encoder.encode(`{"password": "${this._password}"}`)
       );
+
       message.connect(
         "accept-certificate",
         (msg, tls_peer_certificate, tls_peer_errors) => {
@@ -106,24 +87,29 @@ export const PiholeClient6 = GObject.registerClass(
         }
       );
 
-      const bytes = this._session.send_and_read(message, null);
+      const input_stream = await this._session.send_async(
+        message,
+        GLib.PRIORITY_DEFAULT,
+        null
+      );
 
       if (message.status_code !== Soup.Status.OK) {
         return;
       }
 
-      const data = this._decoder.decode(bytes.toArray());
+      const data = await this._readAsString(input_stream);
       const authResult = JSON.parse(data);
       this._sid = authResult.session.sid;
-      this._validity = authResult.session.validity;
     }
 
-    _delete_session() {
+    async _delete_session() {
       const message = Soup.Message.new("DELETE", this._auth_url);
+
       message.set_request_body_from_bytes(
         "application/json",
         this._encoder.encode(`{"sid": "${this._sid}"}`)
       );
+
       message.connect(
         "accept-certificate",
         (msg, tls_peer_certificate, tls_peer_errors) => {
@@ -131,7 +117,7 @@ export const PiholeClient6 = GObject.registerClass(
         }
       );
 
-      const bytes = this._session.send_and_read(message, null);
+      await this._session.send_async(message, GLib.PRIORITY_DEFAULT, null);
     }
 
     async _fetchUrl(url) {
@@ -162,6 +148,7 @@ export const PiholeClient6 = GObject.registerClass(
       }
 
       const data = await this._readAsString(input_stream);
+
       return JSON.parse(data);
     }
 
@@ -198,11 +185,14 @@ export const PiholeClient6 = GObject.registerClass(
     async fetchSensors() {
       const json = await this._fetchUrl(this._sensors_url);
 
-      if (json.sensors.cpu_temp != null) {
-        this.data.temp = json.sensors.cpu_temp.toFixed(1);
-      } else if (json.sensors.list[0].temps[0].value != null) {
-        this.data.temp = json.sensors.list[0].temps[0].value.toFixed(1);
-      } else {
+      // FTL v6.0.4 can only read sensors in /sys/class/hwmon/hwmonX
+      try {
+        if (json.sensors.cpu_temp != null) {
+          this.data.temp = json.sensors.cpu_temp.toFixed(1);
+        } else if (json.sensors.list[0].temps[0].value != null) {
+          this.data.temp = json.sensors.list[0].temps[0].value.toFixed(1);
+        }
+      } catch {
         this.data.temp = "n/a";
       }
 
@@ -213,6 +203,8 @@ export const PiholeClient6 = GObject.registerClass(
           this.data.temp += " °C";
         } else if (json.sensors.unit === "F") {
           this.data.temp += " °F";
+        } else if (json.sensors.unit === "K") {
+          this.data.temp += " °K";
         }
       }
     }
@@ -224,6 +216,10 @@ export const PiholeClient6 = GObject.registerClass(
     }
 
     async fetchData() {
+      if (this._passwordSet && this._sid === "") {
+        await this._authenticate();
+      }
+
       await this.fetchBlocking();
       await this.fetchSummary();
       await this.fetchVersion();
@@ -231,7 +227,7 @@ export const PiholeClient6 = GObject.registerClass(
       await this.fetchSystem();
     }
 
-    togglePihole(state) {
+    async _doToggle(state) {
       const message = Soup.Message.new("POST", this._blocking_url);
 
       if (this._passwordSet) {
@@ -253,20 +249,28 @@ export const PiholeClient6 = GObject.registerClass(
         }
       );
 
-      const bytes = this._session.send_and_read(message, null);
+      const input_stream = await this._session.send_async(
+        message,
+        GLib.PRIORITY_DEFAULT,
+        null
+      );
 
       if (message.status_code !== Soup.Status.OK) {
         return;
       }
 
-      const data = this._decoder.decode(bytes.toArray());
+      const data = await this._readAsString(input_stream);
       const toggleResult = JSON.parse(data);
       this.data.blocking = toggleResult.blocking;
     }
 
+    togglePihole(state) {
+      this._doToggle(state).catch();
+    }
+
     destroy() {
       if (this._passwordSet) {
-        this._delete_session();
+        this._delete_session().catch();
       }
 
       if (this._authTimeoutId) {

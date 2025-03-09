@@ -18,7 +18,7 @@ export const PiholeClient = GObject.registerClass(
       this._versionsUrl = this._authUrl + "&versions";
 
       this._session = new Soup.Session();
-      this._session.set_user_agent(`Phi/2.2 `);
+      this._session.set_user_agent(`Phi/2.3 `);
       this._decoder = new TextDecoder();
 
       this.data = {};
