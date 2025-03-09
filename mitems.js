@@ -2,6 +2,32 @@ import Clutter from "gi://Clutter";
 import GObject from "gi://GObject";
 import St from "gi://St";
 
+/**
+ * This code snippet defines several classes for creating custom UI elements in a GNOME Shell extension
+ * The classes include MultiStatItem, HeaderItem, TailItem, and Line
+ * 
+ * Each class extends the St.BoxLayout class and adds specific child elements and properties to 
+ * create the desired UI layout
+ * 
+ * MultiStatItem class:
+ * - Extends St.BoxLayout
+ * - Initializes UI elements with three labels
+ * - Provides setter methods (text1 and text2) to update the values of the second and third labels
+ * 
+ * HeaderItem class:
+ * - Extends St.BoxLayout
+ * - Initializes UI elements with a label, two buttons, and two box layouts
+ * 
+ * TailItem class:
+ * - Extends St.BoxLayout
+ * - Initializes UI elements with a button and two labels
+ * - Provides setter methods (text1 and text2) to update the values of the two labels
+ * 
+ * Line class:
+ * - Extends St.BoxLayout
+ * - Initializes UI element as a horizontal line separator
+ */
+
 export const MultiStatItem = GObject.registerClass(
   {
     GTypeName: "MultiStatItem",

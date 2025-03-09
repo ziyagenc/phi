@@ -1,5 +1,13 @@
 import Gio from "gi://Gio";
 
+/**
+ * Retrieves the network ID of the network connection 
+ * using the Gio library and the NetworkManager D-Bus service
+ * 
+ * @returns {Promise<string>} A promise resolves with
+ * network ID of the network connection
+ */
+
 async function _getNetworkProxyAsync() {
   const NetworkProxyXml = `
     <node>

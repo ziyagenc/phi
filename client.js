@@ -11,6 +11,13 @@ export const PiholeClient = GObject.registerClass(
     GTypeName: "PiholeClient",
   },
   class PiholeClient extends GObject.Object {
+
+    /**
+     * Create a new instance of the Pihole Client class
+     * @param {string} url - The base URL of the Pi-hole server
+     * @param {string} token - The authentication token for the Pi-hole server
+     */
+
     constructor(url, token) {
       super();
       this._authUrl = url + "?auth=" + token;
@@ -31,6 +38,12 @@ export const PiholeClient = GObject.registerClass(
       this.data.updateExists = false;
     }
 
+    /**
+     * Read the input stream as a string.
+     * @param {Gio.InputStream} input_stream - The input stream to read
+     * @returns {Promise<string>} The decoded text
+     */
+
     async _readAsString(input_stream) {
       const output_stream = Gio.MemoryOutputStream.new_resizable();
 
@@ -45,6 +58,13 @@ export const PiholeClient = GObject.registerClass(
       const bytes = output_stream.steal_as_bytes();
       return this._decoder.decode(bytes.toArray());
     }
+
+    /**
+     * Fetch the content of the specified URL.
+     * @private
+     * @param {string} url - The URL to fetch
+     * @returns {Promise<Object>} As a JSON object
+     */
 
     async _fetchUrl(url) {
       const message = Soup.Message.new("GET", url);
@@ -64,6 +84,11 @@ export const PiholeClient = GObject.registerClass(
       return JSON.parse(data);
     }
 
+    /**
+     * Fetch the summary information from the Pi-hole server
+     * @returns {Promise<Object>} The summary info as a JSON
+     */
+
     async fetchSummary() {
       const json = await this._fetchUrl(this._summaryUrl);
       this.data.dns_queries_today = json.dns_queries_today;
@@ -74,6 +99,11 @@ export const PiholeClient = GObject.registerClass(
       // Status: enabled/disabled
       this.data.blocking = json.status;
     }
+
+    /**
+     * Fetch the version information from the Pi-hole server
+     * @returns {Promise<Object>} The version information as JSON 
+     */
 
     async fetchVersion() {
       const json = await this._fetchUrl(this._versionsUrl);
@@ -87,6 +117,11 @@ export const PiholeClient = GObject.registerClass(
       await this.fetchSummary();
       await this.fetchVersion();
     }
+
+    /**
+     * Toggle the Pi-hole state.
+     * @param {boolean} state - The state to toggle (true for enable, false for disable).
+     */
 
     togglePihole(state) {
       const toggleUrl = state
