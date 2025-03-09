@@ -20,9 +20,9 @@ You can install Phi via official page of [GNOME Shell Extensions](https://extens
 
 ## Changelog
 
-### v2.1
+### v2.3
 
-- Handle connections to a Pi-hole v6 with blank password.
+- Make authentication async.
 
 See [CHANGELOG.md](CHANGELOG.md) for complete changelogs.
 
@@ -30,4 +30,4 @@ See [CHANGELOG.md](CHANGELOG.md) for complete changelogs.
 
 Phi is distributed under the GNU General Public License, version 3.
 
-Copyright © 2024 Ziya Genç.
+Copyright © 2025 Ziya Genç.
