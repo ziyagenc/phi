@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.3
+
+- Make authentication async. Fixes [#17].
+
 ## v2.2
 
 - Handle connections to a Pi-hole v6 with blank password.

@@ -20,7 +20,7 @@ export const PiholeIndicator = GObject.registerClass(
 
       this._configure();
       this._setHandlers();
-      this._start().catch();
+      this._start();
     }
 
     _configure() {
@@ -34,13 +34,13 @@ export const PiholeIndicator = GObject.registerClass(
       this._networkHandlerId = this._network_monitor.connect(
         "network-changed",
         () => {
-          this._start().catch();
+          this._start();
         }
       );
 
       this._settingsHandlerId = this._settings.connect("changed", () => {
         this._configure();
-        this._start().catch();
+        this._start();
       });
     }
 
@@ -50,27 +50,28 @@ export const PiholeIndicator = GObject.registerClass(
       this._pihole?.destroy();
       this._pihole = null;
 
-      if (this._network_monitor.network_available) {
-        if (this._check_network && this._hideUi) {
-          const currentNetworkId = await DBus.getNetworkIdAsync();
-
-          this._pihole =
-            this._network === currentNetworkId
-              ? new Pihole(this._me, this._settings, "start")
-              : null;
-        } else if (this._check_network) {
-          const currentNetworkId = await DBus.getNetworkIdAsync();
-
-          this._pihole =
-            this._network === currentNetworkId
-              ? new Pihole(this._me, this._settings, "start")
-              : new Pihole(this._me, this._settings, "unknown_network");
-        } else {
-          this._pihole = new Pihole(this._me, this._settings, "start");
-        }
-      } else {
-        if (!this._hideUi)
+      if (!this._network_monitor.network_available) {
+        if (!this._hideUi) {
           this._pihole = new Pihole(this._me, this._settings, "no_network");
+        }
+
+        return;
+      }
+
+      if (!this._check_network) {
+        this._pihole = new Pihole(this._me, this._settings, "start");
+
+        return;
+      }
+
+      const currentNetworkId = await DBus.getNetworkIdAsync();
+
+      if (this._network === currentNetworkId) {
+        this._pihole = new Pihole(this._me, this._settings, "start");
+      } else {
+        this._pihole = this._hideUi
+          ? null
+          : new Pihole(this._me, this._settings, "unknown_network");
       }
     }
 
