@@ -237,18 +237,18 @@ export const MPihole = GObject.registerClass(
 
       this._totalQueriesItem.text1 = data1.dns_queries_today;
       this._queriesBlockedItem.text1 = data1.ads_blocked_today;
-      this._percentageBlockedItem.text1 = data1.ads_percentage_today + "%";
+      this._percentageBlockedItem.text1 = data1.ads_percentage_today + " %";
       this._domainsOnAdlistsItem.text1 = data1.domains_being_blocked;
 
       this._totalQueriesItem.text2 = data2.dns_queries_today;
       this._queriesBlockedItem.text2 = data2.ads_blocked_today;
-      this._percentageBlockedItem.text2 = data2.ads_percentage_today + "%";
+      this._percentageBlockedItem.text2 = data2.ads_percentage_today + " %";
       this._domainsOnAdlistsItem.text2 = data2.domains_being_blocked;
 
       if (this._showSensorData) {
         if (this._version1 == 1) {
-          this._cpuUtilItem.text1 = data1.cpu;
-          this._memoryUsageItem.text1 = data1.memory;
+          this._cpuUtilItem.text1 = data1.cpu + " %";
+          this._memoryUsageItem.text1 = data1.memory + " %";
           this._temperatureItem.text1 = data1.temp;
         } else {
           this._cpuUtilItem.text1 = "n/a";
@@ -257,8 +257,8 @@ export const MPihole = GObject.registerClass(
         }
 
         if (this._version2 == 1) {
-          this._cpuUtilItem.text2 = data2.cpu;
-          this._memoryUsageItem.text2 = data2.memory;
+          this._cpuUtilItem.text2 = data2.cpu + " %";
+          this._memoryUsageItem.text2 = data2.memory + " %";
           this._temperatureItem.text2 = data2.temp;
         } else {
           this._cpuUtilItem.text2 = "n/a";
@@ -310,10 +310,10 @@ export const MPihole = GObject.registerClass(
       this._notificationSource?.destroy();
       this._notificationSource = null;
 
-      this._piholeClient1.destroy();
+      this._piholeClient1?.destroy();
       this._piholeClient1 = null;
 
-      this._piholeClient2.destroy();
+      this._piholeClient2?.destroy();
       this._piholeClient2 = null;
 
       this._menuButton.destroy();
