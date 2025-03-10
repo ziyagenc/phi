@@ -307,7 +307,7 @@ export const Pihole = GObject.registerClass(
       this._notificationSource?.destroy();
       this._notificationSource = null;
 
-      this._piholeClient.destroy();
+      this._piholeClient?.destroy();
       this._piholeClient = null;
 
       this._menuButton.destroy();
