@@ -167,11 +167,11 @@ export const PiholeClient6 = GObject.registerClass(
 
       // We assume local can never be newer than remote :)
       const newCoreAvailable =
-        json.version.core.local.version !== json.version.core.remote.version;
+        json.version.core.local.hash !== json.version.core.remote.hash;
       const newWebAvailable =
-        json.version.web.local.version !== json.version.web.remote.version;
+        json.version.web.local.hash !== json.version.web.remote.hash;
       const newFtlAvailable =
-        json.version.ftl.local.version !== json.version.ftl.remote.version;
+        json.version.ftl.local.hash !== json.version.ftl.remote.hash;
 
       this.data.updateExists =
         newCoreAvailable || newWebAvailable || newFtlAvailable;
