@@ -42,6 +42,19 @@ export const Pihole = GObject.registerClass(
     GTypeName: "Pihole",
   },
   class Pihole extends GObject.Object {
+
+  /**
+   * Represents a Pi-hole monitoring application
+   * Initializes the Pi-hole client, creates a menu button, handles user interactions, and updates the UI with Pi-hole statistics
+   *
+   * @param {object} me - An object representing the application
+   * @param {object} settings - An object containing the Pi-hole settings
+   * @param {string} command - A string indicating the command to execute
+   *
+   * @example
+   * const pihole = new Pihole(me, settings, command);
+   */
+
     constructor(me, settings, command) {
       super();
       this._me = me;
