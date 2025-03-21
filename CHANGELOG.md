@@ -1,8 +1,16 @@
 # Changelog
 
+## v2.5
+
+- Use `/padd` endpoint to reduce the number of API calls. Fixes [#24](https://github.com/ziyagenc/phi/issues/24).
+
+## v2.4
+
+- Fix update checking for Pi-hole dev branch. Fixes [#21](https://github.com/ziyagenc/phi/issues/21). PR by @mwoolweaver. Thank you!
+
 ## v2.3
 
-- Make authentication async. Fixes [#17].
+- Make authentication async. Fixes [#17](https://github.com/ziyagenc/phi/issues/17).
 
 ## v2.2
 
@@ -14,8 +22,8 @@
 
 ## v2.0
 
-- Support Pi-hole v6. Fixes [#10].
-- Fetch sensor data: CPU, memory usage and temperature. This feature requires Pi-hole v6. Fixes [#9].
+- Support Pi-hole v6. Fixes [#10](https://github.com/ziyagenc/phi/issues/10).
+- Fetch sensor data: CPU, memory usage and temperature. This feature requires Pi-hole v6. Fixes [#9](https://github.com/ziyagenc/phi/issues/9).
 - Use appropriate widgets for password/token entry.
 
 ## v1.8

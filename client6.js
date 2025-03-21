@@ -28,11 +28,8 @@ export const PiholeClient6 = GObject.registerClass(
       }
 
       this._auth_url = this._url + "/auth";
-      this._stats_url = this._url + "/stats/summary";
-      this._version_url = this._url + "/info/version";
+      this._padd_url = this._url + "/padd";
       this._blocking_url = this._url + "/dns/blocking";
-      this._sensors_url = this._url + "/info/sensors";
-      this._system_url = this._url + "/info/system";
 
       this._session = new Soup.Session();
       // Leave a whitespace to be followed by libsoup version
@@ -83,6 +80,23 @@ export const PiholeClient6 = GObject.registerClass(
       message.connect(
         "accept-certificate",
         (msg, tls_peer_certificate, tls_peer_errors) => {
+          // This function is called when the certificate cannot
+          // be validated. We could provide an option in the settings
+          // for entering certificate details and inspect if they
+          // match here. But, do we really want this?
+
+          // Those who are concerned about the security of their
+          // Pi-hole connection should import its self-signed
+          // certificate and uncomment the following line.
+
+          // return false;
+
+          // N.B. The following check does not increase security either.
+          // if (tls_peer_certificate.get_subject_name() === "CN=pi.hole") {
+          //   return true;
+          // }
+
+          // Therefore, we simply accept the certificate.
           return true;
         }
       );
@@ -152,47 +166,39 @@ export const PiholeClient6 = GObject.registerClass(
       return JSON.parse(data);
     }
 
-    async fetchSummary() {
-      const json = await this._fetchUrl(this._stats_url);
+    async fetchData() {
+      if (this._passwordSet && this._sid === "") {
+        await this._authenticate();
+      }
+
+      const json = await this._fetchUrl(this._padd_url);
+
       this.data.dns_queries_today = json.queries.total.toString();
       this.data.ads_blocked_today = json.queries.blocked.toString();
       this.data.ads_percentage_today = json.queries.percent_blocked.toFixed(1);
-      this.data.domains_being_blocked =
-        json.gravity.domains_being_blocked.toString();
-    }
-
-    async fetchVersion() {
-      const json = await this._fetchUrl(this._version_url);
+      this.data.domains_being_blocked = json.gravity_size.toString();
       this.data.version = json.version.core.local.version;
 
       // We assume local can never be newer than remote :)
       const newCoreAvailable =
-        json.version.core.local.version !== json.version.core.remote.version;
+        json.version.core.local.hash !== json.version.core.remote.hash;
       const newWebAvailable =
-        json.version.web.local.version !== json.version.web.remote.version;
+        json.version.web.local.hash !== json.version.web.remote.hash;
       const newFtlAvailable =
-        json.version.ftl.local.version !== json.version.ftl.remote.version;
+        json.version.ftl.local.hash !== json.version.ftl.remote.hash;
 
       this.data.updateExists =
         newCoreAvailable || newWebAvailable || newFtlAvailable;
-    }
 
-    async fetchBlocking() {
-      const json = await this._fetchUrl(this._blocking_url);
       this.data.blocking = json.blocking;
-    }
 
-    async fetchSensors() {
-      const json = await this._fetchUrl(this._sensors_url);
+      this.data.cpu = json["%cpu"].toFixed(1);
+      this.data.memory = json["%mem"].toFixed(1);
 
       // FTL v6.0.4 can only read sensors in /sys/class/hwmon/hwmonX
-      try {
-        if (json.sensors.cpu_temp != null) {
-          this.data.temp = json.sensors.cpu_temp.toFixed(1);
-        } else if (json.sensors.list[0].temps[0].value != null) {
-          this.data.temp = json.sensors.list[0].temps[0].value.toFixed(1);
-        }
-      } catch {
+      if (json.sensors.cpu_temp != null) {
+        this.data.temp = json.sensors.cpu_temp.toFixed(1);
+      } else {
         this.data.temp = "n/a";
       }
 
@@ -207,24 +213,6 @@ export const PiholeClient6 = GObject.registerClass(
           this.data.temp += " °K";
         }
       }
-    }
-
-    async fetchSystem() {
-      const json = await this._fetchUrl(this._system_url);
-      this.data.cpu = json.system.cpu.load.percent[0].toFixed(1);
-      this.data.memory = json.system.memory.ram["%used"].toFixed(1);
-    }
-
-    async fetchData() {
-      if (this._passwordSet && this._sid === "") {
-        await this._authenticate();
-      }
-
-      await this.fetchBlocking();
-      await this.fetchSummary();
-      await this.fetchVersion();
-      await this.fetchSensors();
-      await this.fetchSystem();
     }
 
     async _doToggle(state) {
