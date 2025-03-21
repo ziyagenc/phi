@@ -20,9 +20,9 @@ You can install Phi via official page of [GNOME Shell Extensions](https://extens
 
 ## Changelog
 
-### v2.3
+### v2.5
 
-- Make authentication async.
+- Use `/padd` endpoint to reduce the number of API calls. Fixes [#24](https://github.com/ziyagenc/phi/issues/24).
 
 See [CHANGELOG.md](CHANGELOG.md) for complete changelogs.
 
