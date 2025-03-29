@@ -13,6 +13,17 @@ Gio._promisify(Adw.MessageDialog.prototype, "choose", "choose_finish");
 Gio._promisify(Gtk.UriLauncher.prototype, "launch", "launch_finish");
 
 export default class PiholeIndicatorPrefs extends ExtensionPreferences {
+
+  /**
+   * Class: PiholeIndicatorPrefs
+   * 
+   * A class that extends ExtensionPreferences and provides methods for setting the network list, resetting the settings, and filling the preferences window
+   * 
+   * Inputs:
+   * - networks_entry: A text entry widget for the network list
+   * - window: The preferences window
+   * 
+   */
   async setNetworkList(networks_entry) {
     networks_entry.text = await DBus.getNetworkIdAsync();
   }

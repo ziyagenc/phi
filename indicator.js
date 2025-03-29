@@ -5,11 +5,26 @@ import * as DBus from "./dbus.js";
 import { Pihole as SingleInstance } from "./pihole.js";
 import { MPihole as MultiInstance } from "./mpihole.js";
 
+/**
+ * A class that manages the Pihole indicator based on the 
+ * user's settings and the availability of the network
+ *
+ * @class PiholeIndicator
+ */
 export const PiholeIndicator = GObject.registerClass(
   {
     GTypeName: "PiholeIndicator",
   },
   class PiholeIndicator extends GObject.Object {
+
+    /**
+     * Creates an instance of PiholeIndicator
+     *
+     * @param {Object} me - The current instance
+     * @param {Object} settings - The user's current settings
+     * @memberof PiholeIndicator
+     */
+
     constructor(me, settings) {
       super();
 
@@ -23,12 +38,24 @@ export const PiholeIndicator = GObject.registerClass(
       this._start();
     }
 
+    /**
+     * Retrieves the user's settings
+     *
+     * @memberof PiholeIndicator
+     */
+
     _configure() {
       this._hideUi = this._settings.get_boolean("hideui");
       this._check_network = this._settings.get_boolean("check-network");
       this._network = this._settings.get_string("network");
       this._multimode = this._settings.get_boolean("multimode");
     }
+
+    /**
+     * Connects event handlers for network changes and settings changes
+     *
+     * @memberof PiholeIndicator
+     */
 
     _setHandlers() {
       this._networkHandlerId = this._network_monitor.connect(
@@ -43,6 +70,13 @@ export const PiholeIndicator = GObject.registerClass(
         this._start();
       });
     }
+
+    /**
+     * Determines the appropriate Pihole instance to create based on the 
+     * network availability and the user's settings
+     *
+     * @memberof PiholeIndicator
+     */
 
     async _start() {
       const Pihole = this._multimode ? MultiInstance : SingleInstance;
@@ -74,6 +108,12 @@ export const PiholeIndicator = GObject.registerClass(
           : new Pihole(this._me, this._settings, "unknown_network");
       }
     }
+
+    /**
+     * Disconnects event handlers and destroys the instance
+     *
+     * @memberof PiholeIndicator
+     */
 
     destroy() {
       this._settings.disconnect(this._settingsHandlerId);
