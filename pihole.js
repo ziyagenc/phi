@@ -16,6 +16,9 @@ import { PiholeClient6 } from "./client6.js";
 
 import { ItemContext, PrefsItem, StatsItem } from "./items.js";
 
+const PIHOLE_VERSION_5 = 0;
+const PIHOLE_VERSION_6 = 1;
+
 const PiholeMenuTypes = {
   MAINMENU: 0,
   ERRORMENU: 1,
@@ -50,10 +53,10 @@ export const Pihole = GObject.registerClass(
       this._configure();
       this._makeMenu();
 
-      if (this._version == 0) {
-        this._piholeClient = new PiholeClient(this._url, this._token);
+      if (this._version == PIHOLE_VERSION_5) {
+        this._piholeClient = new PiholeClient(this._url, this._token, this._me.metadata["version-name"]);
       } else {
-        this._piholeClient = new PiholeClient6(this._url, this._token);
+        this._piholeClient = new PiholeClient6(this._url, this._token, this._me.metadata["version-name"]);
       }
 
       this._setHandlers();
@@ -128,7 +131,7 @@ export const Pihole = GObject.registerClass(
       this._menuButton.menu.addMenuItem(this._domainsOnAdlistsItem);
 
       // If this is Pi-hole v6
-      if (this._version == 1 && this._showSensorData) {
+      if (this._version == PIHOLE_VERSION_6 && this._showSensorData) {
         this._sensorsSeparator = new PopupMenu.PopupSeparatorMenuItem();
         this._menuButton.menu.addMenuItem(this._sensorsSeparator);
 
@@ -231,7 +234,7 @@ export const Pihole = GObject.registerClass(
       this._percentageBlockedItem.text = stats.ads_percentage_today + " %";
       this._domainsOnAdlistsItem.text = stats.domains_being_blocked;
 
-      if (this._version == 1 && this._showSensorData) {
+      if (this._version == PIHOLE_VERSION_6 && this._showSensorData) {
         this._cpuUtilItem.text = stats.cpu + " %";
         this._memoryUsageItem.text = stats.memory + " %";
         this._temperatureItem.text = stats.temp;

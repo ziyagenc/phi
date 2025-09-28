@@ -206,7 +206,7 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     });
 
     reset_button.connect("clicked", () => {
-      this.confirmReset(window);
+      this.confirmReset(window).catch();
     });
 
     action_issue.connect("activated", () => {

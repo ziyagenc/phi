@@ -4,9 +4,9 @@
   "gettext-domain": "phi@ziyagenc.github.com",
   "name": "Phi: Pi-hole Indicator",
   "settings-schema": "org.gnome.shell.extensions.phi",
-  "shell-version": ["45", "46", "47", "48"],
+  "shell-version": ["45", "46", "47", "48", "49"],
   "url": "https://github.com/ziyagenc/phi",
   "uuid": "phi@ziyagenc.github.com",
-  "version": 25,
-  "version-name": "2.5"
+  "version": 26,
+  "version-name": "2.6"
 }
