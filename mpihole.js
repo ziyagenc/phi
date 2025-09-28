@@ -15,6 +15,9 @@ import { PiholeClient6 } from "./client6.js";
 
 import { HeaderItem, Line, MultiStatItem, TailItem } from "./mitems.js";
 
+const PIHOLE_VERSION_5 = 0;
+const PIHOLE_VERSION_6 = 1;
+
 export const MPihole = GObject.registerClass(
   {
     GTypeName: "MPihole",
@@ -29,16 +32,16 @@ export const MPihole = GObject.registerClass(
       this._configure();
       this._makeMenu();
 
-      if (this._version1 == 0) {
-        this._piholeClient1 = new PiholeClient(this._url1, this._token1);
+      if (this._version1 == PIHOLE_VERSION_5) {
+        this._piholeClient1 = new PiholeClient(this._url1, this._token1, this._me.metadata["version-name"]);
       } else {
-        this._piholeClient1 = new PiholeClient6(this._url1, this._token1);
+        this._piholeClient1 = new PiholeClient6(this._url1, this._token1, this._me.metadata["version-name"]);
       }
 
-      if (this._version2 == 0) {
-        this._piholeClient2 = new PiholeClient(this._url2, this._token2);
+      if (this._version2 == PIHOLE_VERSION_5) {
+        this._piholeClient2 = new PiholeClient(this._url2, this._token2, this._me.metadata["version-name"]);
       } else {
-        this._piholeClient2 = new PiholeClient6(this._url2, this._token2);
+        this._piholeClient2 = new PiholeClient6(this._url2, this._token2, this._me.metadata["version-name"]);
       }
 
       this._setHandlers();
@@ -88,7 +91,7 @@ export const MPihole = GObject.registerClass(
       this._percentageBlockedItem = new MultiStatItem(_("Percentage Blocked"));
       this._domainsOnAdlistsItem = new MultiStatItem(_("Domains on AdLists"));
       if (
-        (this._version1 == 1 || this._version2 == 1) &&
+        (this._version1 == PIHOLE_VERSION_6 || this._version2 == PIHOLE_VERSION_6) &&
         this._showSensorData
       ) {
         this._line2 = new Line();
@@ -108,7 +111,7 @@ export const MPihole = GObject.registerClass(
       statsBox.add_child(this._percentageBlockedItem);
       statsBox.add_child(this._domainsOnAdlistsItem);
       if (
-        (this._version1 == 1 || this._version2 == 1) &&
+        (this._version1 == PIHOLE_VERSION_6 || this._version2 == PIHOLE_VERSION_6) &&
         this._showSensorData
       ) {
         statsBox.add_child(this._line2);
@@ -153,7 +156,7 @@ export const MPihole = GObject.registerClass(
       this._percentageBlockedItem._label2.set_style_class_name(newLabelStyle);
       this._domainsOnAdlistsItem._label2.set_style_class_name(newLabelStyle);
       if (
-        (this._version1 == 1 || this._version2 == 1) &&
+        (this._version1 == PIHOLE_VERSION_6 || this._version2 == PIHOLE_VERSION_6) &&
         this._showSensorData
       ) {
         this._cpuUtilItem._label2.set_style_class_name(newLabelStyle);
@@ -171,7 +174,7 @@ export const MPihole = GObject.registerClass(
       this._percentageBlockedItem._label3.set_style_class_name(newLabelStyle);
       this._domainsOnAdlistsItem._label3.set_style_class_name(newLabelStyle);
       if (
-        (this._version1 == 1 || this._version2 == 1) &&
+        (this._version1 == PIHOLE_VERSION_6 || this._version2 == PIHOLE_VERSION_6) &&
         this._showSensorData
       ) {
         this._cpuUtilItem._label3.set_style_class_name(newLabelStyle);
@@ -216,7 +219,7 @@ export const MPihole = GObject.registerClass(
     }
 
     async _updateUI() {
-      await Promise.all([
+      const [result1, result2] = await Promise.allSettled([
         this._piholeClient1.fetchData(),
         this._piholeClient2.fetchData(),
       ]);
@@ -224,67 +227,111 @@ export const MPihole = GObject.registerClass(
       // Make sure that the menu is there.
       if (!this._menuButton) return;
 
-      const data1 = this._piholeClient1.data;
-      const data2 = this._piholeClient2.data;
+      if (result1.status === "fulfilled") {
+        const data1 = this._piholeClient1.data;
+        const state1 = data1.blocking === "enabled";
+        this._headerItem.state1 = state1;
+        this._updateFirstInstance(state1);
 
-      const state1 = data1.blocking === "enabled";
-      const state2 = data2.blocking === "enabled";
-      this._headerItem.state1 = state1;
-      this._headerItem.state2 = state2;
-      this._updateFirstInstance(state1);
-      this._updateSecondInstance(state2);
-      this._updatePanelIcon();
+        this._totalQueriesItem.text1 = data1.dns_queries_today;
+        this._queriesBlockedItem.text1 = data1.ads_blocked_today;
+        this._percentageBlockedItem.text1 = data1.ads_percentage_today + " %";
+        this._domainsOnAdlistsItem.text1 = data1.domains_being_blocked;
 
-      this._totalQueriesItem.text1 = data1.dns_queries_today;
-      this._queriesBlockedItem.text1 = data1.ads_blocked_today;
-      this._percentageBlockedItem.text1 = data1.ads_percentage_today + " %";
-      this._domainsOnAdlistsItem.text1 = data1.domains_being_blocked;
-
-      this._totalQueriesItem.text2 = data2.dns_queries_today;
-      this._queriesBlockedItem.text2 = data2.ads_blocked_today;
-      this._percentageBlockedItem.text2 = data2.ads_percentage_today + " %";
-      this._domainsOnAdlistsItem.text2 = data2.domains_being_blocked;
-
-      if (this._showSensorData) {
-        if (this._version1 == 1) {
-          this._cpuUtilItem.text1 = data1.cpu + " %";
-          this._memoryUsageItem.text1 = data1.memory + " %";
-          this._temperatureItem.text1 = data1.temp;
-        } else {
-          this._cpuUtilItem.text1 = "n/a";
-          this._memoryUsageItem.text1 = "n/a";
-          this._temperatureItem.text1 = "n/a";
+        if (this._showSensorData) {
+          if (this._version1 == PIHOLE_VERSION_6) {
+            this._cpuUtilItem.text1 = data1.cpu + " %";
+            this._memoryUsageItem.text1 = data1.memory + " %";
+            this._temperatureItem.text1 = data1.temp;
+          } else {
+            this._cpuUtilItem.text1 = "n/a";
+            this._memoryUsageItem.text1 = "n/a";
+            this._temperatureItem.text1 = "n/a";
+          }
         }
 
-        if (this._version2 == 1) {
-          this._cpuUtilItem.text2 = data2.cpu + " %";
-          this._memoryUsageItem.text2 = data2.memory + " %";
-          this._temperatureItem.text2 = data2.temp;
-        } else {
-          this._cpuUtilItem.text2 = "n/a";
-          this._memoryUsageItem.text2 = "n/a";
-          this._temperatureItem.text2 = "n/a";
+        this._settingsItem.text1 = data1.version;
+
+        if (this._checkNewVersion && !this._checkedUpdate) {
+          if (data1.updateExists) {
+            this._showNotification(`Update available for ${this._name1}.`);
+          }
         }
+      } else {
+        this._headerItem.state1 = false;
+        this._updateFirstInstance(false);
+
+        this._totalQueriesItem.text1 = "Error";
+        this._queriesBlockedItem.text1 = "Error";
+        this._percentageBlockedItem.text1 = "Error";
+        this._domainsOnAdlistsItem.text1 = "Error";
+
+        if (this._showSensorData) {
+          this._cpuUtilItem.text1 = "Error";
+          this._memoryUsageItem.text1 = "Error";
+          this._temperatureItem.text1 = "Error";
+        }
+
+        this._settingsItem.text1 = "Error";
       }
 
-      this._settingsItem.text1 = data1.version;
-      this._settingsItem.text2 = data2.version;
+      if (result2.status === "fulfilled") {
+        const data2 = this._piholeClient2.data;
+        const state2 = data2.blocking === "enabled";
+        this._headerItem.state2 = state2;
+        this._updateSecondInstance(state2);
 
-      if (this._checkNewVersion && !this._checkedUpdate) {
-        if (data1.updateExists) {
-          this._showNotification(`Update available for ${this._name1}.`);
+        this._totalQueriesItem.text2 = data2.dns_queries_today;
+        this._queriesBlockedItem.text2 = data2.ads_blocked_today;
+        this._percentageBlockedItem.text2 = data2.ads_percentage_today + " %";
+        this._domainsOnAdlistsItem.text2 = data2.domains_being_blocked;
+
+        if (this._showSensorData) {
+          if (this._version2 == PIHOLE_VERSION_6) {
+            this._cpuUtilItem.text2 = data2.cpu + " %";
+            this._memoryUsageItem.text2 = data2.memory + " %";
+            this._temperatureItem.text2 = data2.temp;
+          } else {
+            this._cpuUtilItem.text2 = "n/a";
+            this._memoryUsageItem.text2 = "n/a";
+            this._temperatureItem.text2 = "n/a";
+          }
         }
 
-        if (data2.updateExists) {
-          this._showNotification(`Update available for ${this._name2}.`);
+        this._settingsItem.text2 = data2.version;
+
+        if (this._checkNewVersion && !this._checkedUpdate) {
+          if (data2.updateExists) {
+            this._showNotification(`Update available for ${this._name2}.`);
+          }
+        }
+      } else {
+        this._headerItem.state2 = false;
+        this._updateSecondInstance(false);
+
+        this._totalQueriesItem.text2 = "Error";
+        this._queriesBlockedItem.text2 = "Error";
+        this._percentageBlockedItem.text2 = "Error";
+        this._domainsOnAdlistsItem.text2 = "Error";
+
+        if (this._showSensorData) {
+          this._cpuUtilItem.text2 = "Error";
+          this._memoryUsageItem.text2 = "Error";
+          this._temperatureItem.text2 = "Error";
         }
 
+        this._settingsItem.text2 = "Error";
+      }
+
+      this._updatePanelIcon();
+
+      if (result1.status === "fulfilled" || result2.status === "fulfilled") {
         this._checkedUpdate = true;
       }
     }
 
     _startUpdating() {
-      this._updateUI();
+      this._updateUI().catch();
 
       if (this._fetchTimeoutId) {
         GLib.Source.remove(this._fetchTimeoutId);
@@ -294,7 +341,7 @@ export const MPihole = GObject.registerClass(
         GLib.PRIORITY_DEFAULT,
         this._interval,
         () => {
-          this._updateUI();
+          this._updateUI().catch();
           return GLib.SOURCE_CONTINUE;
         }
       );

@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.6
+
+- Update for GNOME 49.
+- Fix the update check logic. Now Phi compares version tags instead of hashes.
+
 ## v2.5
 
 - Use `/padd` endpoint to reduce the number of API calls. Fixes [#24](https://github.com/ziyagenc/phi/issues/24).

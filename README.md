@@ -20,9 +20,10 @@ You can install Phi via official page of [GNOME Shell Extensions](https://extens
 
 ## Changelog
 
-### v2.5
+### v2.6
 
-- Use `/padd` endpoint to reduce the number of API calls. Fixes [#24](https://github.com/ziyagenc/phi/issues/24).
+- Update for GNOME 49.
+- Fix the update check logic. Now Phi compares version tags instead of hashes.
 
 See [CHANGELOG.md](CHANGELOG.md) for complete changelogs.
 

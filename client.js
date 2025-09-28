@@ -1,7 +1,7 @@
 import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 import GObject from "gi://GObject";
-import Soup from "gi://Soup";
+import Soup from "gi://Soup?version=3.0";
 
 Gio._promisify(Soup.Session.prototype, "send_async", "send_finish");
 Gio._promisify(Gio.OutputStream.prototype, "splice_async", "splice_finish");
@@ -11,14 +11,15 @@ export const PiholeClient = GObject.registerClass(
     GTypeName: "PiholeClient",
   },
   class PiholeClient extends GObject.Object {
-    constructor(url, token) {
+    constructor(url, token, version) {
       super();
       this._authUrl = url + "?auth=" + token;
       this._summaryUrl = this._authUrl + "&summary";
       this._versionsUrl = this._authUrl + "&versions";
 
       this._session = new Soup.Session();
-      this._session.set_user_agent(`Phi/2.3 `);
+      // Leave a whitespace to be followed by libsoup version
+      this._session.set_user_agent(`Phi/${version} `);
       this._decoder = new TextDecoder();
 
       this.data = {};
@@ -56,8 +57,7 @@ export const PiholeClient = GObject.registerClass(
       );
 
       if (message.status_code !== Soup.Status.OK) {
-        this._handleError(ClientError.HTTP_NOT_OK);
-        return JSON.parse("{}");
+        throw new Error(`HTTP ${message.status_code}`);
       }
 
       const data = await this._readAsString(input_stream);

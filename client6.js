@@ -16,7 +16,7 @@ export const PiholeClient6 = GObject.registerClass(
     GTypeName: "PiholeClient6",
   },
   class PiholeClient6 extends GObject.Object {
-    constructor(url, password) {
+    constructor(url, password, version) {
       super();
       this._url = url;
       this._password = password;
@@ -33,7 +33,7 @@ export const PiholeClient6 = GObject.registerClass(
 
       this._session = new Soup.Session();
       // Leave a whitespace to be followed by libsoup version
-      this._session.set_user_agent(`Phi/2.3 `);
+      this._session.set_user_agent(`Phi/${version} `);
       this._encoder = new TextEncoder();
       this._decoder = new TextDecoder();
 
@@ -158,7 +158,7 @@ export const PiholeClient6 = GObject.registerClass(
       );
 
       if (message.status_code !== Soup.Status.OK) {
-        return JSON.parse("{}");
+        throw new Error(`HTTP ${message.status_code}`);
       }
 
       const data = await this._readAsString(input_stream);
@@ -179,23 +179,48 @@ export const PiholeClient6 = GObject.registerClass(
       this.data.domains_being_blocked = json.gravity_size.toString();
       this.data.version = json.version.core.local.version;
 
-      // We assume local can never be newer than remote :)
-      const newCoreAvailable =
-        json.version.core.local.hash !== json.version.core.remote.hash;
-      const newWebAvailable =
-        json.version.web.local.hash !== json.version.web.remote.hash;
-      const newFtlAvailable =
-        json.version.ftl.local.hash !== json.version.ftl.remote.hash;
+      const hasUpdate = (local, remote) => {
+        if (!local?.version || !remote?.version) return false;
+        const localVer = String(local.version).trim();
+        const remoteVer = String(remote.version).trim();
+        return localVer !== remoteVer;
+      };
+
+      const newCoreAvailable = hasUpdate(
+        json.version?.core?.local,
+        json.version?.core?.remote
+      );
+
+      const newWebAvailable = hasUpdate(
+        json.version?.web?.local,
+        json.version?.web?.remote
+      );
+
+      const newFtlAvailable = hasUpdate(
+        json.version?.ftl?.local,
+        json.version?.ftl?.remote
+      );
+
+      const newDockerAvailable =
+        json.version?.docker?.local &&
+        json.version?.docker?.remote &&
+        json.version.docker.local !== json.version.docker.remote;
 
       this.data.updateExists =
-        newCoreAvailable || newWebAvailable || newFtlAvailable;
+        newCoreAvailable ||
+        newWebAvailable ||
+        newFtlAvailable ||
+        newDockerAvailable;
 
       this.data.blocking = json.blocking;
 
       this.data.cpu = json["%cpu"].toFixed(1);
       this.data.memory = json["%mem"].toFixed(1);
 
-      // FTL v6.0.4 can only read sensors in /sys/class/hwmon/hwmonX
+      // FTL (as of v6.2.3) can only read sensors in /sys/class/hwmon/hwmonX
+      // However, Armbian provides temperature at /etc/armbianmonitor/datasources/soctemp 
+      // which is linked to /sys/devices/virtual/thermal/thermal_zone0/temp.
+      // So, Pi-hole does not provide temperature information for such devices.
       if (json.sensors.cpu_temp != null) {
         this.data.temp = json.sensors.cpu_temp.toFixed(1);
       } else {
