@@ -4,12 +4,6 @@ import St from "gi://St";
 
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
 
-export const ItemContext = {
-  SUCCESS: 0,
-  ERROR: 1,
-  PREF: 2,
-};
-
 export const StatsItem = GObject.registerClass(
   {
     GTypeName: "StatsItem",
@@ -32,7 +26,6 @@ export const StatsItem = GObject.registerClass(
       this.actor.add_child(this._nameLabel);
       this.actor.add_child(this._valueLabel);
 
-      this.itemContext = ItemContext.SUCCESS;
     }
 
     get text() {
@@ -56,7 +49,6 @@ export const PrefsItem = GObject.registerClass(
     _init() {
       super._init(_("Settings"));
       this._valueLabel.set_style_class_name("ver-value");
-      this.itemContext = ItemContext.PREF;
     }
   }
 );

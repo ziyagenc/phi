@@ -13,10 +13,8 @@ import { PiholeClient } from "./client.js";
 // PiholeClient v6
 import { PiholeClient6 } from "./client6.js";
 
+import { PIHOLE_VERSION_5, PIHOLE_VERSION_6, ClientStatus } from "./constants.js";
 import { HeaderItem, Line, MultiStatItem, TailItem } from "./mitems.js";
-
-const PIHOLE_VERSION_5 = 0;
-const PIHOLE_VERSION_6 = 1;
 
 export const MPihole = GObject.registerClass(
   {
@@ -32,13 +30,13 @@ export const MPihole = GObject.registerClass(
       this._configure();
       this._makeMenu();
 
-      if (this._version1 == PIHOLE_VERSION_5) {
+      if (this._version1 === PIHOLE_VERSION_5) {
         this._piholeClient1 = new PiholeClient(this._url1, this._token1, this._me.metadata["version-name"]);
       } else {
         this._piholeClient1 = new PiholeClient6(this._url1, this._token1, this._me.metadata["version-name"]);
       }
 
-      if (this._version2 == PIHOLE_VERSION_5) {
+      if (this._version2 === PIHOLE_VERSION_5) {
         this._piholeClient2 = new PiholeClient(this._url2, this._token2, this._me.metadata["version-name"]);
       } else {
         this._piholeClient2 = new PiholeClient6(this._url2, this._token2, this._me.metadata["version-name"]);
@@ -52,6 +50,10 @@ export const MPihole = GObject.registerClass(
       if (command === "start") {
         this._startUpdating();
         this._isRunning = true;
+      } else if (command === "no_network") {
+        this._showErrorMenu(ClientStatus.NO_NETWORK);
+      } else if (command === "unknown_network") {
+        this._showErrorMenu(ClientStatus.UNKNOWN_NETWORK);
       }
     }
 
@@ -84,16 +86,23 @@ export const MPihole = GObject.registerClass(
       );
       this._menuButton.add_child(this._menuButton.icon);
 
+      this._errorLabel = new St.Label({
+        style_class: "menu-item",
+        visible: false,
+      });
+
       this._headerItem = new HeaderItem(this._name1, this._name2);
       this._line1 = new Line();
       this._totalQueriesItem = new MultiStatItem(_("Total Queries"));
       this._queriesBlockedItem = new MultiStatItem(_("Queries Blocked"));
       this._percentageBlockedItem = new MultiStatItem(_("Percentage Blocked"));
       this._domainsOnAdlistsItem = new MultiStatItem(_("Domains on AdLists"));
-      if (
-        (this._version1 == PIHOLE_VERSION_6 || this._version2 == PIHOLE_VERSION_6) &&
-        this._showSensorData
-      ) {
+
+      this._hasSensorItems =
+        (this._version1 === PIHOLE_VERSION_6 || this._version2 === PIHOLE_VERSION_6) &&
+        this._showSensorData;
+
+      if (this._hasSensorItems) {
         this._line2 = new Line();
         this._cpuUtilItem = new MultiStatItem(_("CPU"));
         this._memoryUsageItem = new MultiStatItem(_("Memory Usage"));
@@ -101,19 +110,36 @@ export const MPihole = GObject.registerClass(
       }
       this._line3 = new Line();
       this._settingsItem = new TailItem();
+
+      this._mainItems = [
+        this._headerItem,
+        this._line1,
+        this._totalQueriesItem,
+        this._queriesBlockedItem,
+        this._percentageBlockedItem,
+        this._domainsOnAdlistsItem,
+      ];
+
+      if (this._hasSensorItems) {
+        this._mainItems.push(
+          this._line2,
+          this._cpuUtilItem,
+          this._memoryUsageItem,
+          this._temperatureItem
+        );
+      }
+
       const statsBox = new St.BoxLayout({ vertical: true });
       this._menuButton.menu.box.add_child(statsBox);
 
+      statsBox.add_child(this._errorLabel);
       statsBox.add_child(this._headerItem);
       statsBox.add_child(this._line1);
       statsBox.add_child(this._totalQueriesItem);
       statsBox.add_child(this._queriesBlockedItem);
       statsBox.add_child(this._percentageBlockedItem);
       statsBox.add_child(this._domainsOnAdlistsItem);
-      if (
-        (this._version1 == PIHOLE_VERSION_6 || this._version2 == PIHOLE_VERSION_6) &&
-        this._showSensorData
-      ) {
+      if (this._hasSensorItems) {
         statsBox.add_child(this._line2);
         statsBox.add_child(this._cpuUtilItem);
         statsBox.add_child(this._memoryUsageItem);
@@ -155,10 +181,7 @@ export const MPihole = GObject.registerClass(
       this._queriesBlockedItem._label2.set_style_class_name(newLabelStyle);
       this._percentageBlockedItem._label2.set_style_class_name(newLabelStyle);
       this._domainsOnAdlistsItem._label2.set_style_class_name(newLabelStyle);
-      if (
-        (this._version1 == PIHOLE_VERSION_6 || this._version2 == PIHOLE_VERSION_6) &&
-        this._showSensorData
-      ) {
+      if (this._hasSensorItems) {
         this._cpuUtilItem._label2.set_style_class_name(newLabelStyle);
         this._memoryUsageItem._label2.set_style_class_name(newLabelStyle);
         this._temperatureItem._label2.set_style_class_name(newLabelStyle);
@@ -173,10 +196,7 @@ export const MPihole = GObject.registerClass(
       this._queriesBlockedItem._label3.set_style_class_name(newLabelStyle);
       this._percentageBlockedItem._label3.set_style_class_name(newLabelStyle);
       this._domainsOnAdlistsItem._label3.set_style_class_name(newLabelStyle);
-      if (
-        (this._version1 == PIHOLE_VERSION_6 || this._version2 == PIHOLE_VERSION_6) &&
-        this._showSensorData
-      ) {
+      if (this._hasSensorItems) {
         this._cpuUtilItem._label3.set_style_class_name(newLabelStyle);
         this._memoryUsageItem._label3.set_style_class_name(newLabelStyle);
         this._temperatureItem._label3.set_style_class_name(newLabelStyle);
@@ -227,6 +247,14 @@ export const MPihole = GObject.registerClass(
       // Make sure that the menu is there.
       if (!this._menuButton) return;
 
+      // If both failed, show the error UI.
+      if (result1.status === "rejected" && result2.status === "rejected") {
+        this._showErrorMenu(ClientStatus.FETCH_FAILED);
+        return;
+      }
+
+      this._showMainMenu();
+
       if (result1.status === "fulfilled") {
         const data1 = this._piholeClient1.data;
         const state1 = data1.blocking === "enabled";
@@ -238,8 +266,8 @@ export const MPihole = GObject.registerClass(
         this._percentageBlockedItem.text1 = data1.ads_percentage_today + " %";
         this._domainsOnAdlistsItem.text1 = data1.domains_being_blocked;
 
-        if (this._showSensorData) {
-          if (this._version1 == PIHOLE_VERSION_6) {
+        if (this._hasSensorItems) {
+          if (this._version1 === PIHOLE_VERSION_6) {
             this._cpuUtilItem.text1 = data1.cpu + " %";
             this._memoryUsageItem.text1 = data1.memory + " %";
             this._temperatureItem.text1 = data1.temp;
@@ -266,7 +294,7 @@ export const MPihole = GObject.registerClass(
         this._percentageBlockedItem.text1 = "Error";
         this._domainsOnAdlistsItem.text1 = "Error";
 
-        if (this._showSensorData) {
+        if (this._hasSensorItems) {
           this._cpuUtilItem.text1 = "Error";
           this._memoryUsageItem.text1 = "Error";
           this._temperatureItem.text1 = "Error";
@@ -286,8 +314,8 @@ export const MPihole = GObject.registerClass(
         this._percentageBlockedItem.text2 = data2.ads_percentage_today + " %";
         this._domainsOnAdlistsItem.text2 = data2.domains_being_blocked;
 
-        if (this._showSensorData) {
-          if (this._version2 == PIHOLE_VERSION_6) {
+        if (this._hasSensorItems) {
+          if (this._version2 === PIHOLE_VERSION_6) {
             this._cpuUtilItem.text2 = data2.cpu + " %";
             this._memoryUsageItem.text2 = data2.memory + " %";
             this._temperatureItem.text2 = data2.temp;
@@ -314,7 +342,7 @@ export const MPihole = GObject.registerClass(
         this._percentageBlockedItem.text2 = "Error";
         this._domainsOnAdlistsItem.text2 = "Error";
 
-        if (this._showSensorData) {
+        if (this._hasSensorItems) {
           this._cpuUtilItem.text2 = "Error";
           this._memoryUsageItem.text2 = "Error";
           this._temperatureItem.text2 = "Error";
@@ -345,6 +373,24 @@ export const MPihole = GObject.registerClass(
           return GLib.SOURCE_CONTINUE;
         }
       );
+    }
+
+    _showMainMenu() {
+      if (!this._showingMain) {
+        this._errorLabel.visible = false;
+        this._mainItems.forEach((item) => (item.visible = true));
+        this._showingMain = true;
+      }
+    }
+
+    _showErrorMenu(errorMessage) {
+      this._errorLabel.text = errorMessage;
+
+      if (this._showingMain !== false) {
+        this._mainItems.forEach((item) => (item.visible = false));
+        this._errorLabel.visible = true;
+        this._showingMain = false;
+      }
     }
 
     destroy() {

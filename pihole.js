@@ -14,31 +14,8 @@ import { PiholeClient } from "./client.js";
 // PiholeClient v6
 import { PiholeClient6 } from "./client6.js";
 
-import { ItemContext, PrefsItem, StatsItem } from "./items.js";
-
-const PIHOLE_VERSION_5 = 0;
-const PIHOLE_VERSION_6 = 1;
-
-const PiholeMenuTypes = {
-  MAINMENU: 0,
-  ERRORMENU: 1,
-};
-
-const ClientStatus = {
-  FETCH_FAILED: _(
-    "Error: Failed to get statistics.\nMake sure that Pi-hole is reachable."
-  ),
-  EMPTY_RESPONSE: _(
-    "Error: Invalid response.\nMake sure that API token or password is set correctly."
-  ),
-  NOT_INITIALIZED: _(
-    "API token or password is empty. If your Pi-hole is password\nprotected, please enter your API token or password in the settings\nto start monitoring."
-  ),
-  NO_NETWORK: _(
-    "Monitoring has been paused as\nthe computer is currently offline."
-  ),
-  UNKNOWN_NETWORK: _("Monitoring is not enabled\nfor this network."),
-};
+import { PIHOLE_VERSION_5, PIHOLE_VERSION_6, ClientStatus } from "./constants.js";
+import { PrefsItem, StatsItem } from "./items.js";
 
 export const Pihole = GObject.registerClass(
   {
@@ -53,7 +30,7 @@ export const Pihole = GObject.registerClass(
       this._configure();
       this._makeMenu();
 
-      if (this._version == PIHOLE_VERSION_5) {
+      if (this._version === PIHOLE_VERSION_5) {
         this._piholeClient = new PiholeClient(this._url, this._token, this._me.metadata["version-name"]);
       } else {
         this._piholeClient = new PiholeClient6(this._url, this._token, this._me.metadata["version-name"]);
@@ -96,26 +73,19 @@ export const Pihole = GObject.registerClass(
       );
       this._menuButton.add_child(this._menuButton.icon);
 
-      // Error message item -- shown when an error occurs.
-      // It has ItemContext.ERROR set in its "context" field.
+      // Error message item -- hidden when stats are shown.
       this._errorMessageItem = new PopupMenu.PopupMenuItem(_("Initializing"));
-      this._errorMessageItem.itemContext = ItemContext.ERROR;
       this._menuButton.menu.addMenuItem(this._errorMessageItem);
 
-      // Main menu items -- display information received from Pi-hole.
-      // StatsItem has context=ItemContext.SUCCESS
-      // When necessary, we add this field to separators, too.
+      // Main menu items -- hidden when an error is shown.
       this._toggleItem = new PopupMenu.PopupSwitchMenuItem(
         "Initializing",
         false,
         {}
       );
-      this._toggleItem.itemContext = ItemContext.SUCCESS;
       this._menuButton.menu.addMenuItem(this._toggleItem);
 
-      // This separator will be hidden when error menu is shown.
       this._mainSeparator = new PopupMenu.PopupSeparatorMenuItem();
-      this._mainSeparator.itemContext = ItemContext.SUCCESS;
       this._menuButton.menu.addMenuItem(this._mainSeparator);
 
       this._totalQueriesItem = new StatsItem(_("Total Queries"));
@@ -130,8 +100,17 @@ export const Pihole = GObject.registerClass(
       this._domainsOnAdlistsItem = new StatsItem(_("Domains on Lists"));
       this._menuButton.menu.addMenuItem(this._domainsOnAdlistsItem);
 
+      this._mainItems = [
+        this._toggleItem,
+        this._mainSeparator,
+        this._totalQueriesItem,
+        this._queriesBlockedItem,
+        this._percentageBlockedItem,
+        this._domainsOnAdlistsItem,
+      ];
+
       // If this is Pi-hole v6
-      if (this._version == PIHOLE_VERSION_6 && this._showSensorData) {
+      if (this._version === PIHOLE_VERSION_6 && this._showSensorData) {
         this._sensorsSeparator = new PopupMenu.PopupSeparatorMenuItem();
         this._menuButton.menu.addMenuItem(this._sensorsSeparator);
 
@@ -143,6 +122,13 @@ export const Pihole = GObject.registerClass(
 
         this._temperatureItem = new StatsItem(_("Temperature"));
         this._menuButton.menu.addMenuItem(this._temperatureItem);
+
+        this._mainItems.push(
+          this._sensorsSeparator,
+          this._cpuUtilItem,
+          this._memoryUsageItem,
+          this._temperatureItem
+        );
       }
 
       this._prefSeparator = new PopupMenu.PopupSeparatorMenuItem();
@@ -234,17 +220,16 @@ export const Pihole = GObject.registerClass(
       this._percentageBlockedItem.text = stats.ads_percentage_today + " %";
       this._domainsOnAdlistsItem.text = stats.domains_being_blocked;
 
-      if (this._version == PIHOLE_VERSION_6 && this._showSensorData) {
+      if (this._version === PIHOLE_VERSION_6 && this._showSensorData) {
         this._cpuUtilItem.text = stats.cpu + " %";
         this._memoryUsageItem.text = stats.memory + " %";
         this._temperatureItem.text = stats.temp;
       }
 
-      if (this._currentMenu !== PiholeMenuTypes.MAINMENU) {
-        this._menuButton.menu.box.get_children().forEach((item) => {
-          item.visible = item.itemContext !== ItemContext.ERROR;
-        });
-        this._currentMenu = PiholeMenuTypes.MAINMENU;
+      if (!this._showingMain) {
+        this._errorMessageItem.visible = false;
+        this._mainItems.forEach((item) => (item.visible = true));
+        this._showingMain = true;
       }
     }
 
@@ -292,11 +277,10 @@ export const Pihole = GObject.registerClass(
       this._errorMessageItem.label.text = errorMessage;
       this._settingsItem.text = "";
 
-      if (this._currentMenu !== PiholeMenuTypes.ERRORMENU) {
-        this._menuButton.menu.box.get_children().forEach((item) => {
-          item.visible = item.itemContext !== ItemContext.SUCCESS;
-        });
-        this._currentMenu = PiholeMenuTypes.ERRORMENU;
+      if (this._showingMain !== false) {
+        this._mainItems.forEach((item) => (item.visible = false));
+        this._errorMessageItem.visible = true;
+        this._showingMain = false;
       }
     }
 
