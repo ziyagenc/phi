@@ -44,6 +44,7 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     settings.reset("token2");
     settings.reset("instance2");
     settings.reset("version2");
+    settings.reset("show-sensor-data");
     settings.reset("multimode");
     settings.reset("interval");
     settings.reset("hideui");
