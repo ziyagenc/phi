@@ -74,7 +74,7 @@ export const PiholeClient6 = GObject.registerClass(
 
       message.set_request_body_from_bytes(
         "application/json",
-        this._encoder.encode(`{"password": "${this._password}"}`)
+        this._encoder.encode(JSON.stringify({ password: this._password }))
       );
 
       message.connect(
@@ -121,7 +121,7 @@ export const PiholeClient6 = GObject.registerClass(
 
       message.set_request_body_from_bytes(
         "application/json",
-        this._encoder.encode(`{"sid": "${this._sid}"}`)
+        this._encoder.encode(JSON.stringify({ sid: this._sid }))
       );
 
       message.connect(
@@ -140,7 +140,7 @@ export const PiholeClient6 = GObject.registerClass(
       if (this._passwordSet) {
         message.set_request_body_from_bytes(
           "application/json",
-          this._encoder.encode(`{"sid": "${this._sid}"}`)
+          this._encoder.encode(JSON.stringify({ sid: this._sid }))
         );
       }
 
@@ -246,12 +246,12 @@ export const PiholeClient6 = GObject.registerClass(
       if (this._passwordSet) {
         message.set_request_body_from_bytes(
           "application/json",
-          this._encoder.encode(`{"sid": "${this._sid}", "blocking": ${state}}`)
+          this._encoder.encode(JSON.stringify({ sid: this._sid, blocking: state }))
         );
       } else {
         message.set_request_body_from_bytes(
           "application/json",
-          this._encoder.encode(`{"blocking": ${state}}`)
+          this._encoder.encode(JSON.stringify({ blocking: state }))
         );
       }
 
