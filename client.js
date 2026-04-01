@@ -84,8 +84,7 @@ export const PiholeClient = GObject.registerClass(
     }
 
     async fetchData() {
-      await this.fetchSummary();
-      await this.fetchVersion();
+      await Promise.all([this.fetchSummary(), this.fetchVersion()]);
     }
 
     togglePihole(state) {
