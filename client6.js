@@ -40,6 +40,23 @@ export const PiholeClient6 = GObject.registerClass(
       // Session identifier
       this._sid = "";
 
+      // This function is called when the certificate cannot
+      // be validated. We could provide an option in the settings
+      // for entering certificate details and inspect if they
+      // match here. But, do we really want this?
+
+      // Those who are concerned about the security of their
+      // Pi-hole connection should import its self-signed
+      // certificate and change the following function to return false.
+
+      // N.B. The following check does not increase security either.
+      // if (tls_peer_certificate.get_subject_name() === "CN=pi.hole") {
+      //   return true;
+      // }
+
+      // Therefore, we simply accept the certificate.
+      this._acceptCertificate = () => true;
+
       this.data = {};
       this.data.dns_queries_today = "Initializing";
       this.data.ads_blocked_today = "Initializing";
@@ -77,29 +94,7 @@ export const PiholeClient6 = GObject.registerClass(
         this._encoder.encode(JSON.stringify({ password: this._password }))
       );
 
-      message.connect(
-        "accept-certificate",
-        (msg, tls_peer_certificate, tls_peer_errors) => {
-          // This function is called when the certificate cannot
-          // be validated. We could provide an option in the settings
-          // for entering certificate details and inspect if they
-          // match here. But, do we really want this?
-
-          // Those who are concerned about the security of their
-          // Pi-hole connection should import its self-signed
-          // certificate and uncomment the following line.
-
-          // return false;
-
-          // N.B. The following check does not increase security either.
-          // if (tls_peer_certificate.get_subject_name() === "CN=pi.hole") {
-          //   return true;
-          // }
-
-          // Therefore, we simply accept the certificate.
-          return true;
-        }
-      );
+      message.connect("accept-certificate", this._acceptCertificate);
 
       const input_stream = await this._session.send_async(
         message,
@@ -124,12 +119,7 @@ export const PiholeClient6 = GObject.registerClass(
         this._encoder.encode(JSON.stringify({ sid: this._sid }))
       );
 
-      message.connect(
-        "accept-certificate",
-        (msg, tls_peer_certificate, tls_peer_errors) => {
-          return true;
-        }
-      );
+      message.connect("accept-certificate", this._acceptCertificate);
 
       await this._session.send_async(message, GLib.PRIORITY_DEFAULT, null);
     }
@@ -144,12 +134,7 @@ export const PiholeClient6 = GObject.registerClass(
         );
       }
 
-      message.connect(
-        "accept-certificate",
-        (msg, tls_peer_certificate, tls_peer_errors) => {
-          return true;
-        }
-      );
+      message.connect("accept-certificate", this._acceptCertificate);
 
       const input_stream = await this._session.send_async(
         message,
@@ -255,12 +240,7 @@ export const PiholeClient6 = GObject.registerClass(
         );
       }
 
-      message.connect(
-        "accept-certificate",
-        (msg, tls_peer_certificate, tls_peer_errors) => {
-          return true;
-        }
-      );
+      message.connect("accept-certificate", this._acceptCertificate);
 
       const input_stream = await this._session.send_async(
         message,
