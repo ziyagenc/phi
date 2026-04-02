@@ -32,7 +32,10 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     dialog.set_response_appearance("reset", Adw.ResponseAppearance.DESTRUCTIVE);
 
     const response = await dialog.choose(null);
-    if (response === "reset") this.resetSettings(window._settings);
+    if (response === "reset") {
+      this.resetSettings(window._settings);
+      if (window._updateRows) window._updateRows();
+    }
   }
 
   resetSettings(settings) {
@@ -60,6 +63,14 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     builder.add_from_file(this.path + "/ui/behavior.ui");
     builder.add_from_file(this.path + "/ui/about.ui");
 
+    const row_pihole1 = builder.get_object("row_pihole1");
+    const row_pihole2 = builder.get_object("row_pihole2");
+    const page_pihole1 = builder.get_object("page_pihole1");
+    const page_pihole2 = builder.get_object("page_pihole2");
+    const button_back1 = builder.get_object("button_back1");
+    const button_back2 = builder.get_object("button_back2");
+    const button_save1 = builder.get_object("button_save1");
+    const button_save2 = builder.get_object("button_save2");
     const url_entry1 = builder.get_object("url_entry1");
     const token_entry1 = builder.get_object("token_entry1");
     const instance_name1 = builder.get_object("instance_name1");
@@ -91,63 +102,94 @@ export default class PiholeIndicatorPrefs extends ExtensionPreferences {
     phi_logo.file = this.path + "/icons/phi-symbolic.svg";
 
     window._settings = this.getSettings();
-    window._settings.bind(
-      "url1",
-      url_entry1,
-      "text",
-      Gio.SettingsBindFlags.DEFAULT
+
+    const updateRow = (row, nameKey, urlKey) => {
+      row.title = window._settings.get_string(nameKey);
+      row.subtitle = window._settings.get_string(urlKey);
+    };
+
+    updateRow(row_pihole1, "instance1", "url1");
+    updateRow(row_pihole2, "instance2", "url2");
+
+    window._updateRows = () => {
+      updateRow(row_pihole1, "instance1", "url1");
+      updateRow(row_pihole2, "instance2", "url2");
+    };
+
+    const setupSubpage = (row, page, urlEntry, tokenEntry, nameEntry, versionRow, saveButton, backButton, keys) => {
+      let initial = {};
+
+      const load = () => {
+        urlEntry.text = window._settings.get_string(keys.url);
+        tokenEntry.text = window._settings.get_string(keys.token);
+        nameEntry.text = window._settings.get_string(keys.instance);
+        versionRow.selected = window._settings.get_uint(keys.version);
+
+        initial = {
+          url: urlEntry.text,
+          token: tokenEntry.text,
+          instance: nameEntry.text,
+          version: versionRow.selected,
+        };
+
+        saveButton.sensitive = false;
+      };
+
+      const checkDirty = () => {
+        saveButton.sensitive =
+          urlEntry.text !== initial.url ||
+          tokenEntry.text !== initial.token ||
+          nameEntry.text !== initial.instance ||
+          versionRow.selected !== initial.version;
+      };
+
+      urlEntry.connect("notify::text", checkDirty);
+      tokenEntry.connect("notify::text", checkDirty);
+      nameEntry.connect("notify::text", checkDirty);
+      versionRow.connect("notify::selected", checkDirty);
+
+      row.connect("activated", () => {
+        load();
+        window.present_subpage(page);
+      });
+
+      saveButton.connect("clicked", () => {
+        window._settings.set_string(keys.url, urlEntry.text);
+        window._settings.set_string(keys.token, tokenEntry.text);
+        window._settings.set_string(keys.instance, nameEntry.text);
+        window._settings.set_uint(keys.version, versionRow.selected);
+        updateRow(row, keys.instance, keys.url);
+        window.close_subpage();
+      });
+
+      backButton.connect("clicked", () => {
+        window.close_subpage();
+      });
+    };
+
+    setupSubpage(
+      row_pihole1, page_pihole1,
+      url_entry1, token_entry1, instance_name1, version_row1,
+      button_save1, button_back1,
+      { url: "url1", token: "token1", instance: "instance1", version: "version1" }
     );
-    window._settings.bind(
-      "token1",
-      token_entry1,
-      "text",
-      Gio.SettingsBindFlags.DEFAULT
+
+    setupSubpage(
+      row_pihole2, page_pihole2,
+      url_entry2, token_entry2, instance_name2, version_row2,
+      button_save2, button_back2,
+      { url: "url2", token: "token2", instance: "instance2", version: "version2" }
     );
+
     window._settings.bind(
-      "instance1",
-      instance_name1,
-      "text",
-      Gio.SettingsBindFlags.DEFAULT
-    );
-    window._settings.bind(
-      "version1",
-      version_row1,
-      "selected",
-      Gio.SettingsBindFlags.DEFAULT
-    );
-    window._settings.bind(
-      "url2",
-      url_entry2,
-      "text",
-      Gio.SettingsBindFlags.DEFAULT
-    );
-    window._settings.bind(
-      "token2",
-      token_entry2,
-      "text",
-      Gio.SettingsBindFlags.DEFAULT
-    );
-    window._settings.bind(
-      "instance2",
-      instance_name2,
-      "text",
-      Gio.SettingsBindFlags.DEFAULT
-    );
-    window._settings.bind(
-      "version2",
-      version_row2,
-      "selected",
+      "multimode",
+      multimode_switch,
+      "active",
       Gio.SettingsBindFlags.DEFAULT
     );
     window._settings.bind(
       "show-sensor-data",
       show_sensor_data_switch,
-      "active",
-      Gio.SettingsBindFlags.DEFAULT
-    );
-    window._settings.bind(
-      "multimode",
-      multimode_switch,
       "active",
       Gio.SettingsBindFlags.DEFAULT
     );
