@@ -1,4 +1,5 @@
 import Gio from "gi://Gio";
+import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 
 import * as DBus from "./dbus.js";
@@ -34,14 +35,30 @@ export const PiholeIndicator = GObject.registerClass(
       this._networkHandlerId = this._network_monitor.connect(
         "network-changed",
         () => {
-          this._start();
-        }
+          this._startWithDelay();
+        },
       );
 
       this._settingsHandlerId = this._settings.connect("changed", () => {
         this._configure();
-        this._start();
+        this._startWithDelay();
       });
+    }
+
+    _startWithDelay() {
+      if (this._startTimeoutId) {
+        GLib.Source.remove(this._startTimeoutId);
+      }
+
+      this._startTimeoutId = GLib.timeout_add(
+        GLib.PRIORITY_DEFAULT,
+        1000,
+        () => {
+          this._startTimeoutId = null;
+          this._start();
+          return GLib.SOURCE_REMOVE;
+        },
+      );
     }
 
     async _start() {
@@ -76,6 +93,10 @@ export const PiholeIndicator = GObject.registerClass(
     }
 
     destroy() {
+      if (this._startTimeoutId) {
+        GLib.Source.remove(this._startTimeoutId);
+      }
+
       this._settings.disconnect(this._settingsHandlerId);
       this._settings = null;
 
@@ -84,5 +105,5 @@ export const PiholeIndicator = GObject.registerClass(
       this._pihole?.destroy();
       this._pihole = null;
     }
-  }
+  },
 );
