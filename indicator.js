@@ -81,11 +81,17 @@ export const PiholeIndicator = GObject.registerClass(
         return;
       }
 
-      const currentNetworkId = await DBus.getNetworkIdAsync();
+      try {
+        const currentNetworkId = await DBus.getNetworkIdAsync();
 
-      if (this._network === currentNetworkId) {
-        this._pihole = new Pihole(this._me, this._settings, "start");
-      } else {
+        if (this._network === currentNetworkId) {
+          this._pihole = new Pihole(this._me, this._settings, "start");
+        } else {
+          this._pihole = this._hideUi
+            ? null
+            : new Pihole(this._me, this._settings, "unknown_network");
+        }
+      } catch {
         this._pihole = this._hideUi
           ? null
           : new Pihole(this._me, this._settings, "unknown_network");
