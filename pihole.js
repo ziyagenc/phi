@@ -29,19 +29,25 @@ export const Pihole = GObject.registerClass(
 
       this._configure();
       this._makeMenu();
-
-      if (this._version === PIHOLE_VERSION_5) {
-        this._piholeClient = new PiholeClient(this._url, this._token, this._me.metadata["version-name"]);
-      } else {
-        this._piholeClient = new PiholeClient6(this._url, this._token, this._me.metadata["version-name"]);
-      }
-
-      this._setHandlers();
       this._notificationSource = null;
 
+      this._settingsItem.connect("activate", () => {
+        this._me.openPreferences();
+      });
+
       if (command === "start") {
+        if (this._version === PIHOLE_VERSION_5) {
+          this._piholeClient = new PiholeClient(this._url, this._token, this._me.metadata["version-name"]);
+        } else {
+          this._piholeClient = new PiholeClient6(this._url, this._token, this._me.metadata["version-name"]);
+        }
+
+        this._toggleItem.connect("toggled", (_, state) => {
+          this._piholeClient.togglePihole(state).catch();
+          this._updateStatusTextAndIcon(state);
+        });
+
         this._startUpdating();
-        this._isRunning = true;
       } else if (command === "no_network") {
         this._showErrorMenu(ClientStatus.NO_NETWORK);
       } else if (command === "unknown_network") {
@@ -138,17 +144,6 @@ export const Pihole = GObject.registerClass(
       this._menuButton.menu.addMenuItem(this._settingsItem);
 
       Main.panel.addToStatusArea(this._me.uuid, this._menuButton);
-    }
-
-    _setHandlers() {
-      this._toggleItem.connect("toggled", (_, state) => {
-        this._piholeClient.togglePihole(state).catch();
-        this._updateStatusTextAndIcon(state);
-      });
-
-      this._settingsItem.connect("activate", () => {
-        this._me.openPreferences();
-      });
     }
 
     async _updateUI() {

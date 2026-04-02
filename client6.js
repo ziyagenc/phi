@@ -3,13 +3,9 @@ import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 import Soup from "gi://Soup?version=3.0";
 
-Gio._promisify(
-  Gio.InputStream.prototype,
-  "read_bytes_async",
-  "read_bytes_finish"
-);
+import { readAsString } from "./helper.js";
+
 Gio._promisify(Soup.Session.prototype, "send_async", "send_finish");
-Gio._promisify(Gio.OutputStream.prototype, "splice_async", "splice_finish");
 
 export const PiholeClient6 = GObject.registerClass(
   {
@@ -21,11 +17,7 @@ export const PiholeClient6 = GObject.registerClass(
       this._url = url;
       this._password = password;
 
-      if (this._password.length === 0) {
-        this._passwordSet = false;
-      } else {
-        this._passwordSet = true;
-      }
+      this._passwordSet = this._password.length > 0;
 
       this._auth_url = this._url + "/auth";
       this._padd_url = this._url + "/padd";
@@ -35,7 +27,6 @@ export const PiholeClient6 = GObject.registerClass(
       // Leave a whitespace to be followed by libsoup version
       this._session.set_user_agent(`Phi/${version} `);
       this._encoder = new TextEncoder();
-      this._decoder = new TextDecoder();
 
       // Session identifier
       this._sid = "";
@@ -71,21 +62,6 @@ export const PiholeClient6 = GObject.registerClass(
       this.data.temp = "Initializing";
     }
 
-    async _readAsString(input_stream) {
-      const output_stream = Gio.MemoryOutputStream.new_resizable();
-
-      await output_stream.splice_async(
-        input_stream,
-        Gio.OutputStreamSpliceFlags.CLOSE_TARGET |
-          Gio.OutputStreamSpliceFlags.CLOSE_SOURCE,
-        GLib.PRIORITY_DEFAULT,
-        null
-      );
-
-      const bytes = output_stream.steal_as_bytes();
-      return this._decoder.decode(bytes.toArray());
-    }
-
     async _authenticate() {
       const message = Soup.Message.new("POST", this._auth_url);
 
@@ -106,7 +82,7 @@ export const PiholeClient6 = GObject.registerClass(
         throw new Error(`Authentication failed: ${message.status_code}.`);
       }
 
-      const data = await this._readAsString(input_stream);
+      const data = await readAsString(input_stream);
       const authResult = JSON.parse(data);
       this._sid = authResult.session.sid;
     }
@@ -158,7 +134,7 @@ export const PiholeClient6 = GObject.registerClass(
         throw new Error(`HTTP ${result.status_code}.`);
       }
 
-      const data = await this._readAsString(result.input_stream);
+      const data = await readAsString(result.input_stream);
 
       return JSON.parse(data);
     }
@@ -276,7 +252,7 @@ export const PiholeClient6 = GObject.registerClass(
         return;
       }
 
-      const data = await this._readAsString(result.input_stream);
+      const data = await readAsString(result.input_stream);
       const toggleResult = JSON.parse(data);
       this.data.blocking = toggleResult.blocking;
     }
@@ -284,10 +260,6 @@ export const PiholeClient6 = GObject.registerClass(
     destroy() {
       if (this._passwordSet) {
         this._delete_session().catch();
-      }
-
-      if (this._authTimeoutId) {
-        GLib.Source.remove(this._authTimeoutId);
       }
 
       this._session = null;

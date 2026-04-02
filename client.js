@@ -3,8 +3,9 @@ import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 import Soup from "gi://Soup";
 
+import { readAsString } from "./helper.js";
+
 Gio._promisify(Soup.Session.prototype, "send_async", "send_finish");
-Gio._promisify(Gio.OutputStream.prototype, "splice_async", "splice_finish");
 
 export const PiholeClient = GObject.registerClass(
   {
@@ -20,7 +21,6 @@ export const PiholeClient = GObject.registerClass(
       this._session = new Soup.Session();
       // Leave a whitespace to be followed by libsoup version
       this._session.set_user_agent(`Phi/${version} `);
-      this._decoder = new TextDecoder();
 
       this.data = {};
       this.data.dns_queries_today = "Initializing";
@@ -30,21 +30,6 @@ export const PiholeClient = GObject.registerClass(
       this.data.version = "Initializing";
       this.data.blocking = false;
       this.data.updateExists = false;
-    }
-
-    async _readAsString(input_stream) {
-      const output_stream = Gio.MemoryOutputStream.new_resizable();
-
-      await output_stream.splice_async(
-        input_stream,
-        Gio.OutputStreamSpliceFlags.CLOSE_TARGET |
-          Gio.OutputStreamSpliceFlags.CLOSE_SOURCE,
-        GLib.PRIORITY_DEFAULT,
-        null
-      );
-
-      const bytes = output_stream.steal_as_bytes();
-      return this._decoder.decode(bytes.toArray());
     }
 
     async _fetchUrl(url) {
@@ -60,7 +45,7 @@ export const PiholeClient = GObject.registerClass(
         throw new Error(`HTTP ${message.status_code}`);
       }
 
-      const data = await this._readAsString(input_stream);
+      const data = await readAsString(input_stream);
       return JSON.parse(data);
     }
 
