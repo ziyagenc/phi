@@ -14,7 +14,11 @@ import { PiholeClient } from "./client.js";
 // PiholeClient v6
 import { PiholeClient6 } from "./client6.js";
 
-import { PIHOLE_VERSION_5, PIHOLE_VERSION_6, ClientStatus } from "./constants.js";
+import {
+  PIHOLE_VERSION_5,
+  PIHOLE_VERSION_6,
+  ClientStatus,
+} from "./constants.js";
 import { PrefsItem, StatsItem } from "./items.js";
 
 export const Pihole = GObject.registerClass(
@@ -37,9 +41,17 @@ export const Pihole = GObject.registerClass(
 
       if (command === "start") {
         if (this._version === PIHOLE_VERSION_5) {
-          this._piholeClient = new PiholeClient(this._url, this._token, this._me.metadata["version-name"]);
+          this._piholeClient = new PiholeClient(
+            this._url,
+            this._token,
+            this._me.metadata["version-name"],
+          );
         } else {
-          this._piholeClient = new PiholeClient6(this._url, this._token, this._me.metadata["version-name"]);
+          this._piholeClient = new PiholeClient6(
+            this._url,
+            this._token,
+            this._me.metadata["version-name"],
+          );
         }
 
         this._toggleItem.connect("toggled", (_, state) => {
@@ -68,14 +80,14 @@ export const Pihole = GObject.registerClass(
       this._menuButton = new PanelMenu.Button(
         0.0,
         this._me.metadata.name,
-        false
+        false,
       );
 
       this._menuButton.icon = new St.Icon({
         style_class: "system-status-icon",
       });
       this._menuButton.icon.gicon = Gio.icon_new_for_string(
-        this._me.path + "/icons/phi-symbolic.svg"
+        this._me.path + "/icons/phi-symbolic.svg",
       );
       this._menuButton.add_child(this._menuButton.icon);
 
@@ -87,7 +99,7 @@ export const Pihole = GObject.registerClass(
       this._toggleItem = new PopupMenu.PopupSwitchMenuItem(
         "Initializing",
         false,
-        {}
+        {},
       );
       this._menuButton.menu.addMenuItem(this._toggleItem);
 
@@ -133,7 +145,7 @@ export const Pihole = GObject.registerClass(
           this._sensorsSeparator,
           this._cpuUtilItem,
           this._memoryUsageItem,
-          this._temperatureItem
+          this._temperatureItem,
         );
       }
 
@@ -190,7 +202,7 @@ export const Pihole = GObject.registerClass(
         () => {
           this._updateUI().catch();
           return GLib.SOURCE_CONTINUE;
-        }
+        },
       );
     }
 
@@ -212,12 +224,12 @@ export const Pihole = GObject.registerClass(
       this._toggleItem.setToggleState(state);
       this._totalQueriesItem.text = stats.dns_queries_today;
       this._queriesBlockedItem.text = stats.ads_blocked_today;
-      this._percentageBlockedItem.text = stats.ads_percentage_today + " %";
+      this._percentageBlockedItem.text = stats.ads_percentage_today + "%";
       this._domainsOnAdlistsItem.text = stats.domains_being_blocked;
 
       if (this._version === PIHOLE_VERSION_6 && this._showSensorData) {
-        this._cpuUtilItem.text = stats.cpu + " %";
-        this._memoryUsageItem.text = stats.memory + " %";
+        this._cpuUtilItem.text = stats.cpu + "%";
+        this._memoryUsageItem.text = stats.memory + "%";
         this._temperatureItem.text = stats.temp;
       }
 
@@ -295,5 +307,5 @@ export const Pihole = GObject.registerClass(
       this._menuButton.destroy();
       this._menuButton = null;
     }
-  }
+  },
 );
