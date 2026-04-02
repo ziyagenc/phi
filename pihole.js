@@ -142,7 +142,7 @@ export const Pihole = GObject.registerClass(
 
     _setHandlers() {
       this._toggleItem.connect("toggled", (_, state) => {
-        this._piholeClient.togglePihole(state);
+        this._piholeClient.togglePihole(state).catch();
         this._updateStatusTextAndIcon(state);
       });
 

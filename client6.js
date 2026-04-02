@@ -103,7 +103,7 @@ export const PiholeClient6 = GObject.registerClass(
       );
 
       if (message.status_code !== Soup.Status.OK) {
-        return;
+        throw new Error(`Authentication failed: ${message.status_code}.`);
       }
 
       const data = await this._readAsString(input_stream);
@@ -124,7 +124,7 @@ export const PiholeClient6 = GObject.registerClass(
       await this._session.send_async(message, GLib.PRIORITY_DEFAULT, null);
     }
 
-    async _fetchUrl(url) {
+    async _sendGet(url) {
       const message = Soup.Message.new("GET", url);
 
       if (this._passwordSet) {
@@ -142,11 +142,23 @@ export const PiholeClient6 = GObject.registerClass(
         null
       );
 
-      if (message.status_code !== Soup.Status.OK) {
-        throw new Error(`HTTP ${message.status_code}`);
+      return { input_stream, status_code: message.status_code };
+    }
+
+    async _fetchUrl(url) {
+      let result = await this._sendGet(url);
+
+      if (result.status_code === Soup.Status.UNAUTHORIZED && this._passwordSet) {
+        this._sid = "";
+        await this._authenticate();
+        result = await this._sendGet(url);
       }
 
-      const data = await this._readAsString(input_stream);
+      if (result.status_code !== Soup.Status.OK) {
+        throw new Error(`HTTP ${result.status_code}.`);
+      }
+
+      const data = await this._readAsString(result.input_stream);
 
       return JSON.parse(data);
     }
@@ -248,17 +260,25 @@ export const PiholeClient6 = GObject.registerClass(
         null
       );
 
-      if (message.status_code !== Soup.Status.OK) {
+      return { input_stream, status_code: message.status_code };
+    }
+
+    async togglePihole(state) {
+      let result = await this._doToggle(state);
+
+      if (result.status_code === Soup.Status.UNAUTHORIZED && this._passwordSet) {
+        this._sid = "";
+        await this._authenticate();
+        result = await this._doToggle(state);
+      }
+
+      if (result.status_code !== Soup.Status.OK) {
         return;
       }
 
-      const data = await this._readAsString(input_stream);
+      const data = await this._readAsString(result.input_stream);
       const toggleResult = JSON.parse(data);
       this.data.blocking = toggleResult.blocking;
-    }
-
-    togglePihole(state) {
-      this._doToggle(state).catch();
     }
 
     destroy() {

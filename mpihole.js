@@ -154,7 +154,7 @@ export const MPihole = GObject.registerClass(
     _setHandlers() {
       this._headerItem._button1.connect("clicked", () => {
         const newState = !this._headerItem.state1;
-        this._piholeClient1.togglePihole(newState);
+        this._piholeClient1.togglePihole(newState).catch();
         this._headerItem.state1 = newState;
         this._updateFirstInstance(newState);
         this._updatePanelIcon();
@@ -162,7 +162,7 @@ export const MPihole = GObject.registerClass(
 
       this._headerItem._button2.connect("clicked", () => {
         const newState = !this._headerItem.state2;
-        this._piholeClient2.togglePihole(newState);
+        this._piholeClient2.togglePihole(newState).catch();
         this._headerItem.state2 = newState;
         this._updateSecondInstance(newState);
         this._updatePanelIcon();
