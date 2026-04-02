@@ -25,7 +25,6 @@ export const StatsItem = GObject.registerClass(
 
       this.actor.add_child(this._nameLabel);
       this.actor.add_child(this._valueLabel);
-
     }
 
     get text() {

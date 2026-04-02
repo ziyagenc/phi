@@ -72,7 +72,7 @@ export const PiholeClient = GObject.registerClass(
       await Promise.all([this.fetchSummary(), this.fetchVersion()]);
     }
 
-    togglePihole(state) {
+    async togglePihole(state) {
       const toggleUrl = state
         ? this._authUrl + "&enable"
         : this._authUrl + "&disable";
