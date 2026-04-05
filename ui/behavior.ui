@@ -39,8 +39,7 @@
         </child>
         <child>
           <object class="AdwActionRow">
-            <property name="title" translatable="yes">Hide indicator if disconnected</property>
-            <property name="subtitle" translatable="yes">Can be combined with network selection below.</property>
+            <property name="title" translatable="yes">Hide indicator when offline or on a different network</property>
             <property name="activatable-widget">hideui_switch</property>
             <child>
               <object class="GtkSwitch" id="hideui_switch">
@@ -53,8 +52,7 @@
         </child>
         <child>
           <object class="AdwActionRow">
-            <property name="title" translatable="yes">Check Pi-hole version at start</property>
-            <property name="subtitle" translatable="yes">Notify if a new version of Pi-hole is available.</property>
+            <property name="title" translatable="yes">Notify on Pi-hole updates</property>
             <property name="activatable-widget">check_new_version_switch</property>
             <child>
               <object class="GtkSwitch" id="check_new_version_switch">
@@ -72,8 +70,8 @@
         <property name="title" translatable="yes">Network</property>
         <child>
           <object class="AdwActionRow">
-            <property name="title" translatable="yes">Check network name</property>
-            <property name="subtitle" translatable="yes">Might be useful if this computer connects to different networks.</property>
+            <property name="title" translatable="yes">Monitor only on selected network</property>
+            <property name="subtitle" translatable="yes">Avoid connecting to Pi-hole on work, school, or public networks.</property>
             <property name="activatable-widget">check_network_switch</property>
             <child>
               <object class="GtkSwitch" id="check_network_switch">
