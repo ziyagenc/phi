@@ -178,10 +178,7 @@ export const Pihole = GObject.registerClass(
           return;
         }
 
-        if (this._settingsItem.text === "") {
-          this._updateVersionLabel(stats);
-        }
-
+        this._updateVersionLabel(stats);
         this._showMainMenu(stats);
       } catch {
         // Make sure that the menu is there.
@@ -275,8 +272,11 @@ export const Pihole = GObject.registerClass(
       }
 
       if (json.updateExists) {
-        this._showNotification("Update available for Pi-hole.");
         this._settingsItem.text = _("Update available!");
+        if (!this._notifiedUpdate) {
+          this._showNotification("Update available for Pi-hole.");
+          this._notifiedUpdate = true;
+        }
       }
     }
 

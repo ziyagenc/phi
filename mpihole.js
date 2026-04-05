@@ -31,7 +31,6 @@ export const MPihole = GObject.registerClass(
       this._makeMenu();
 
       this._notificationSource = null;
-      this._checkedUpdate = false;
 
       this._settingsItem._button.connect("clicked", () => {
         this._me.openPreferences();
@@ -275,10 +274,9 @@ export const MPihole = GObject.registerClass(
 
         this._settingsItem.text1 = data1.version;
 
-        if (this._checkNewVersion && !this._checkedUpdate) {
-          if (data1.updateExists) {
-            this._showNotification(`Update available for ${this._name1}.`);
-          }
+        if (this._checkNewVersion && data1.updateExists && !this._notifiedUpdate1) {
+          this._showNotification(`Update available for ${this._name1}.`);
+          this._notifiedUpdate1 = true;
         }
       } else {
         this._headerItem.state1 = false;
@@ -323,10 +321,9 @@ export const MPihole = GObject.registerClass(
 
         this._settingsItem.text2 = data2.version;
 
-        if (this._checkNewVersion && !this._checkedUpdate) {
-          if (data2.updateExists) {
-            this._showNotification(`Update available for ${this._name2}.`);
-          }
+        if (this._checkNewVersion && data2.updateExists && !this._notifiedUpdate2) {
+          this._showNotification(`Update available for ${this._name2}.`);
+          this._notifiedUpdate2 = true;
         }
       } else {
         this._headerItem.state2 = false;
@@ -347,10 +344,6 @@ export const MPihole = GObject.registerClass(
       }
 
       this._updatePanelIcon();
-
-      if (result1.status === "fulfilled" || result2.status === "fulfilled") {
-        this._checkedUpdate = true;
-      }
     }
 
     _startUpdating() {
