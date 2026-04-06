@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.7
+
+- Update for GNOME 50.
+- Add settings subpage for each Pi-hole instance.
+- Fix authentication for passwords with special characters.
+- Fix error handling in multi-instance mode.
+- Re-authenticate when Pi-hole session expires.
+- Prevent re-authentication when editing settings.
+
 ## v2.6
 
 - Update for GNOME 49.

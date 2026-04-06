@@ -42,7 +42,7 @@
                 <property name="margin-bottom">24</property>
                 <child>
                   <object class="GtkLabel">
-                    <property name="label">v2.6</property>
+                    <property name="label">v2.7</property>
                     <style>
                       <class name="title-4"/>
                     </style>
@@ -134,14 +134,28 @@
             <child>
               <object class="GtkLabel">
                 <property name="halign">1</property>
-                <property name="label">- Update for GNOME 49.</property>
+                <property name="label">- Update for GNOME 50.</property>
                 <property name="wrap">true</property>
               </object>
             </child>
             <child>
               <object class="GtkLabel">
                 <property name="halign">1</property>
-                <property name="label">- Fix the update check logic. Now Phi compares version tags instead of hashes.</property>
+                <property name="label">- Add settings subpage for each Pi-hole instance.</property>
+                <property name="wrap">true</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="halign">1</property>
+                <property name="label">- Fix authentication for passwords with special characters.</property>
+                <property name="wrap">true</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="halign">1</property>
+                <property name="label">- Prevent re-authentication when editing settings.</property>
                 <property name="wrap">true</property>
               </object>
             </child>
