@@ -33,4 +33,4 @@ See [CHANGELOG.md](CHANGELOG.md) for complete changelogs.
 
 Phi is distributed under the GNU General Public License, version 3.
 
-Copyright © 2025 Ziya Genç.
+Copyright © 2026 Ziya Genç.

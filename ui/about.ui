@@ -206,7 +206,7 @@
             <property name="valign">1</property>
             <child>
               <object class="GtkLabel">
-                <property name="label">© 2025 Ziya Genç
+                <property name="label">© 2026 Ziya Genç
 
 This application comes with absolutely no warranty. See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Public License, version 3 only&lt;/a&gt; for details.</property>
                 <property name="margin-bottom">12</property>
