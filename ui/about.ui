@@ -124,7 +124,7 @@
             <property name="valign">1</property>
             <child>
               <object class="GtkLabel">
-                <property name="label">v2.6</property>
+                <property name="label">v2.7</property>
                 <property name="halign">1</property>
                 <style>
                   <class name="title-4"/>
