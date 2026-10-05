@@ -125,7 +125,6 @@
             <property name="valign">3</property>
             <style>
               <class name="destructive-action"/>
-              <class name="reset-button"/>
             </style>
           </object>
         </child>
