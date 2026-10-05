@@ -206,10 +206,10 @@ export const Pihole = GObject.registerClass(
     _updateStatusTextAndIcon(state) {
       if (state) {
         this._toggleItem.label.text = _("Status: Active");
-        this._menuButton.icon.remove_style_class_name("icon-disabled");
+        this._menuButton.icon.opacity = 255;
       } else {
         this._toggleItem.label.text = _("Status: Blocking Disabled");
-        this._menuButton.icon.add_style_class_name("icon-disabled");
+        this._menuButton.icon.opacity = 77;
       }
     }
 

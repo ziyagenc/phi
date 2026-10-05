@@ -74,14 +74,14 @@ export const HeaderItem = GObject.registerClass(
 
       this._button1 = new St.Button({
         label: name1,
-        style_class: "phi-button disabled",
+        style_class: "button phi-button",
         x_align: Clutter.ActorAlign.END,
         x_expand: true,
       });
 
       this._button2 = new St.Button({
         label: name2,
-        style_class: "phi-button disabled",
+        style_class: "button phi-button",
         x_align: Clutter.ActorAlign.END,
         x_expand: true,
       });
@@ -113,17 +113,19 @@ export const TailItem = GObject.registerClass(
         label: _("Settings"),
         x_align: Clutter.ActorAlign.START,
         x_expand: true,
-        style_class: "phi-button settings",
+        style_class: "button phi-button",
       });
 
       this._label1 = new St.Label({
-        style_class: "stat-value ver-value",
+        style_class: "stat-value",
         y_align: Clutter.ActorAlign.CENTER,
+        opacity: 128,
       });
 
       this._label2 = new St.Label({
-        style_class: "stat-value ver-value",
+        style_class: "stat-value",
         y_align: Clutter.ActorAlign.CENTER,
+        opacity: 128,
       });
 
       this.add_child(this._button);
@@ -154,8 +156,15 @@ export const Line = GObject.registerClass(
   class Line extends St.BoxLayout {
     _init() {
       super._init({
-        style_class: "menu-item pihole-line",
+        style_class: "menu-item popup-separator-menu-item",
       });
+
+      this.add_child(
+        new St.Widget({
+          style_class: "popup-separator-menu-item-separator",
+          x_expand: true,
+        })
+      );
     }
   }
 );

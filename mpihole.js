@@ -168,41 +168,38 @@ export const MPihole = GObject.registerClass(
     }
 
     _updateFirstInstance(newState) {
-      const newButtonStyle = newState ? "phi-button" : "phi-button disabled";
-      const newLabelStyle = newState ? "stat-value" : "stat-value ver-value";
+      const newButtonStyle = newState ? "button default phi-button" : "button phi-button";
+      const newLabelOpacity = newState ? 255 : 128;
       this._headerItem._button1.set_style_class_name(newButtonStyle);
-      this._totalQueriesItem._label2.set_style_class_name(newLabelStyle);
-      this._queriesBlockedItem._label2.set_style_class_name(newLabelStyle);
-      this._percentageBlockedItem._label2.set_style_class_name(newLabelStyle);
-      this._domainsOnAdlistsItem._label2.set_style_class_name(newLabelStyle);
+      this._totalQueriesItem._label2.opacity = newLabelOpacity;
+      this._queriesBlockedItem._label2.opacity = newLabelOpacity;
+      this._percentageBlockedItem._label2.opacity = newLabelOpacity;
+      this._domainsOnAdlistsItem._label2.opacity = newLabelOpacity;
       if (this._hasSensorItems) {
-        this._cpuUtilItem._label2.set_style_class_name(newLabelStyle);
-        this._memoryUsageItem._label2.set_style_class_name(newLabelStyle);
-        this._temperatureItem._label2.set_style_class_name(newLabelStyle);
+        this._cpuUtilItem._label2.opacity = newLabelOpacity;
+        this._memoryUsageItem._label2.opacity = newLabelOpacity;
+        this._temperatureItem._label2.opacity = newLabelOpacity;
       }
     }
 
     _updateSecondInstance(newState) {
-      const newButtonStyle = newState ? "phi-button" : "phi-button disabled";
-      const newLabelStyle = newState ? "stat-value" : "stat-value ver-value";
+      const newButtonStyle = newState ? "button default phi-button" : "button phi-button";
+      const newLabelOpacity = newState ? 255 : 128;
       this._headerItem._button2.set_style_class_name(newButtonStyle);
-      this._totalQueriesItem._label3.set_style_class_name(newLabelStyle);
-      this._queriesBlockedItem._label3.set_style_class_name(newLabelStyle);
-      this._percentageBlockedItem._label3.set_style_class_name(newLabelStyle);
-      this._domainsOnAdlistsItem._label3.set_style_class_name(newLabelStyle);
+      this._totalQueriesItem._label3.opacity = newLabelOpacity;
+      this._queriesBlockedItem._label3.opacity = newLabelOpacity;
+      this._percentageBlockedItem._label3.opacity = newLabelOpacity;
+      this._domainsOnAdlistsItem._label3.opacity = newLabelOpacity;
       if (this._hasSensorItems) {
-        this._cpuUtilItem._label3.set_style_class_name(newLabelStyle);
-        this._memoryUsageItem._label3.set_style_class_name(newLabelStyle);
-        this._temperatureItem._label3.set_style_class_name(newLabelStyle);
+        this._cpuUtilItem._label3.opacity = newLabelOpacity;
+        this._memoryUsageItem._label3.opacity = newLabelOpacity;
+        this._temperatureItem._label3.opacity = newLabelOpacity;
       }
     }
 
     _updatePanelIcon() {
       const state = this._headerItem.state1 && this._headerItem.state2;
-      const iconStyle = state
-        ? "system-status-icon"
-        : "system-status-icon icon-disabled";
-      this._menuButton.icon.set_style_class_name(iconStyle);
+      this._menuButton.icon.opacity = state ? 255 : 77;
     }
 
     _getNotificationSource() {
