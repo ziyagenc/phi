@@ -10,7 +10,7 @@ async function _getNetworkProxyAsync() {
 
   const NetworkProxy = Gio.DBusProxy.makeProxyWrapper(NetworkProxyXml);
   const networkProxyAsync = await new Promise((resolve, reject) => {
-    NetworkProxy(
+    new NetworkProxy(
       Gio.DBus.system,
       "org.freedesktop.NetworkManager",
       "/org/freedesktop/NetworkManager",
@@ -36,7 +36,7 @@ async function _getNetworkIdProxyAsync(objectPath) {
 
   const NetworkIdProxy = Gio.DBusProxy.makeProxyWrapper(NetworkIdProxyXml);
   const networkIdProxyAsync = await new Promise((resolve, reject) => {
-    NetworkIdProxy(
+    new NetworkIdProxy(
       Gio.DBus.system,
       "org.freedesktop.NetworkManager",
       objectPath,
