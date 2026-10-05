@@ -1,3 +1,4 @@
+import Clutter from "gi://Clutter";
 import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 import GObject from "gi://GObject";
@@ -145,7 +146,11 @@ export const MPihole = GObject.registerClass(
         );
       }
 
-      const statsBox = new St.BoxLayout({ vertical: true });
+      const statsBox = new St.BoxLayout(
+        "orientation" in St.BoxLayout.prototype
+          ? { orientation: Clutter.Orientation.VERTICAL }
+          : { vertical: true }
+      );
       this._menuButton.menu.box.add_child(statsBox);
 
       statsBox.add_child(this._errorLabel);
