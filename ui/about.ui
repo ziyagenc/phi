@@ -44,7 +44,7 @@
                     <property name="margin-bottom">24</property>
                     <child>
                       <object class="GtkLabel">
-                        <property name="label">v2.7</property>
+                        <property name="label">v2.8</property>
                         <style>
                           <class name="title-4"/>
                         </style>
@@ -128,7 +128,7 @@
             <property name="valign">1</property>
             <child>
               <object class="GtkLabel">
-                <property name="label">v2.7</property>
+                <property name="label">v2.8</property>
                 <property name="halign">1</property>
                 <style>
                   <class name="title-4"/>
@@ -138,28 +138,21 @@
             <child>
               <object class="GtkLabel">
                 <property name="halign">1</property>
-                <property name="label">- Update for GNOME 50.</property>
+                <property name="label">- Update for GNOME 51.</property>
                 <property name="wrap">true</property>
               </object>
             </child>
             <child>
               <object class="GtkLabel">
                 <property name="halign">1</property>
-                <property name="label">- Add settings subpage for each Pi-hole instance.</property>
+                <property name="label">- Use system style instead of hardcoded colors.</property>
                 <property name="wrap">true</property>
               </object>
             </child>
             <child>
               <object class="GtkLabel">
                 <property name="halign">1</property>
-                <property name="label">- Fix authentication for passwords with special characters.</property>
-                <property name="wrap">true</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="halign">1</property>
-                <property name="label">- Prevent re-authentication when editing settings.</property>
+                <property name="label">- Fix empty About tab.</property>
                 <property name="wrap">true</property>
               </object>
             </child>

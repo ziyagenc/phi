@@ -20,12 +20,11 @@ You can install Phi via official page of [GNOME Shell Extensions](https://extens
 
 ## Changelog
 
-### v2.7
+### v2.8
 
-- Update for GNOME 50.
-- Add settings subpage for each Pi-hole instance.
-- Fix authentication for passwords with special characters.
-- Prevent re-authentication when editing settings.
+- Update for GNOME 51.
+- Use system style instead of hardcoded colors.
+- Fix empty About tab.
 
 See [CHANGELOG.md](CHANGELOG.md) for complete changelogs.
 

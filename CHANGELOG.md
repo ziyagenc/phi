@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.8
+
+- Update for GNOME 51.
+- Use system style instead of hardcoded colors.
+- Fix empty About tab.
+
 ## v2.7
 
 - Update for GNOME 50.
